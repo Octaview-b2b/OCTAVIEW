@@ -1,7 +1,9 @@
-
+import { LoginForm } from "../../components/user/Login"
 function AdminLogin() {
   return (
-    <div>Login</div>
+    <>
+    <LoginForm/>
+    </>
   )
 }
 
