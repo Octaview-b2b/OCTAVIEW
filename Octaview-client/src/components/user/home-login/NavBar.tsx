@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { cn } from "../../lib/utils";
+import { cn } from "../../../lib/utils";
+import {useNavigate,Link} from "react-router-dom"
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const navItems = [
-    { label: "Docs", href: "/docs" },
-    { label: "Pricing", href: "/pricing" },
-  ];
+  const navigate = useNavigate()
+  const login=()=>{
+    navigate('/login')
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
@@ -29,20 +29,15 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-sm text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
-            <button 
+            <Link to={'/docs'}>
+            <a  className="text-sm text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">Docs</a>
+            </Link>
+            <button  onClick={login}
               className="px-4 py-2 text-sm text-white bg-black dark:bg-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
             >
               Login
             </button>
+          
           </div>
 
           {/* Mobile Menu Button */}
@@ -70,16 +65,14 @@ const Navbar = () => {
           )}
         >
           <div className="flex flex-col space-y-4 px-4 py-6">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-sm text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
-            <button 
+            <a
+              href="/docs"
+              className="text-sm text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
+            >
+              Docs
+            </a>
+           
+            <button  onClick={login}
               className="px-4 py-2 text-sm text-white bg-black dark:bg-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
             >
               Login

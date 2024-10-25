@@ -1,4 +1,4 @@
-import { LoginForm } from "../../components/user/Login"
+import { LoginForm } from "../../components/user/home-login/Login"
 function AdminLogin() {
   return (
     <>

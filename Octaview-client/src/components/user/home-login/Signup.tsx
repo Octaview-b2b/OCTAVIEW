@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { Label } from "../ui/Login_ui/label";
-import { Input } from "../ui/Login_ui/input";
-import { cn } from "../../lib/utils";
+import { Label } from "../../ui/Login_ui/label";
+import { Input } from "../../ui/Login_ui/input";
+import { cn } from "../../../lib/utils";
 // import {
 //   IconBrandGithub,
 //   IconBrandGoogle,
@@ -21,24 +21,32 @@ export function SignupForm() {
       </h2>
 
       <form className="my-8" onSubmit={handleSubmit}>
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
-            <Input id="firstname" placeholder="Tyler" type="text" />
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input id="lastname" placeholder="Durden" type="text" />
-          </LabelInputContainer>
-        </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
-        </LabelInputContainer>
+      
         <LabelInputContainer className="mb-4">
           <Label htmlFor="company">Company name</Label>
-          <Input id="email" placeholder="" type="text" />
+          <Input id="name" placeholder="" type="text" />
         </LabelInputContainer>
+        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+          <LabelInputContainer>
+          <Label htmlFor="email">Email Address</Label>
+          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          </LabelInputContainer>
+          <LabelInputContainer>
+  <Label htmlFor="otp">OTP</Label>
+  <Input
+    id="otp"
+    placeholder="OTP"
+    type="text" // Use text type to control input length and pattern
+    maxLength={6} // Limits the input to 6 characters
+    onChange={(e) => {
+      // Allow only numeric values and limit to 6 characters
+      const input = e.target.value.replace(/\D/g, '').slice(0, 6);
+      e.target.value = input;
+    }}
+  />
+</LabelInputContainer>
+
+        </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
           <Input id="password" placeholder="••••••••" type="password" />
