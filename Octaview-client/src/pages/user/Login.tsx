@@ -13,10 +13,10 @@ function Login() {
       <div className="flex flex-col w-full lg:w-1/2 max-w-lg lg:pr-8">
         {activeTab === "login" ? (
           <div className="flex flex-col items-center  lg:items-start">
-           <div className="mt-20">
+           <div className="w-full mt-20">
            <LoginForm />
            </div>
-            <p className="mt-4">
+           <p className="mt-4 mx-auto">
               Don't have an account?{" "}
               <button
                 className="text-blue-500 underline ml-1"
@@ -28,10 +28,10 @@ function Login() {
           </div>
         ) : (
           <div className="flex flex-col  items-center lg:items-start">
-            <div className="mt-20">
+            <div className="mt-20 w-full">
             <SignupForm />
             </div>
-            <p className="mt-4">
+            <p className="mt-4 mx-auto">
               Already have an account?{" "}
               <button
                 className="text-blue-500 underline ml-1"

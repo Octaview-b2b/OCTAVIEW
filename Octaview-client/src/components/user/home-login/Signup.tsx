@@ -1,19 +1,35 @@
 "use client";
-import React from "react";
+import React, { useState } from 'react';
 import { Label } from "../../ui/Login_ui/label";
 import { Input } from "../../ui/Login_ui/input";
 import { cn } from "../../../lib/utils";
-// import {
-//   IconBrandGithub,
-//   IconBrandGoogle,
-//   IconBrandOnlyfans,
-// } from "@tabler/icons-react";
 
 export function SignupForm() {
+  const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState('');
+  const [formData, setFormData] = useState({
+    company: '',
+    email: '',
+    password: '',
+    twitterPassword: '',
+  });
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    console.log("Form submitted", formData);
+    setStep(step + 1);
   };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    if (id === 'otp') {
+      const sanitizedOtp = value.replace(/\D/g, '').slice(0, 6);
+      setOtp(sanitizedOtp);
+    } else {
+      setFormData({ ...formData, [id]: value });
+    }
+  };
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
@@ -21,52 +37,92 @@ export function SignupForm() {
       </h2>
 
       <form className="my-8" onSubmit={handleSubmit}>
-      
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="company">Company name</Label>
-          <Input id="name" placeholder="" type="text" />
-        </LabelInputContainer>
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-          <LabelInputContainer>
-          <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
-          </LabelInputContainer>
-          <LabelInputContainer>
-  <Label htmlFor="otp">OTP</Label>
-  <Input
-    id="otp"
-    placeholder="OTP"
-    type="text" // Use text type to control input length and pattern
-    maxLength={6} // Limits the input to 6 characters
-    onChange={(e) => {
-      // Allow only numeric values and limit to 6 characters
-      const input = e.target.value.replace(/\D/g, '').slice(0, 6);
-      e.target.value = input;
-    }}
-  />
-</LabelInputContainer>
+        {step === 1 && (
+          <>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="company">Company name</Label>
+              <Input
+                id="company"
+                value={formData.company}
+                onChange={handleInputChange}
+                placeholder=""
+                type="text"
+              />
+            </LabelInputContainer>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="projectmayhem@fc.com"
+                type="email"
+              />
+            </LabelInputContainer>
+            <button
+              className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              type="submit"
+            >
+              Next &rarr;
+              <BottomGradient />
+            </button>
+          </>
+        )}
 
-        </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-8">
-          <Label htmlFor="twitterpassword">Your twitter password</Label>
-          <Input
-            id="twitterpassword"
-            placeholder="••••••••"
-            type="twitterpassword"
-          />
-        </LabelInputContainer>
+        {step === 2 && (
+          <>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="otp">OTP</Label>
+              <Input
+                id="otp"
+                value={otp}
+                onChange={handleInputChange}
+                placeholder="OTP"
+                type="text"
+                maxLength={6}
+              />
+            </LabelInputContainer>
+            <button
+              className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              type="submit"
+            >
+              Next &rarr;
+              <BottomGradient />
+            </button>
+          </>
+        )}
 
-        <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-          type="submit"
-        >
-          Sign up &rarr;
-          <BottomGradient />
-        </button>
+        {step === 3 && (
+          <>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="••••••••"
+                type="password"
+              />
+            </LabelInputContainer>
+            <LabelInputContainer className="mb-8">
+              <Label htmlFor="twitterPassword">Your Twitter password</Label>
+              <Input
+                id="twitterPassword"
+                value={formData.twitterPassword}
+                onChange={handleInputChange}
+                placeholder="••••••••"
+                type="password"
+              />
+            </LabelInputContainer>
+            <button
+              className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              type="submit"
+            >
+              Sign up &rarr;
+              <BottomGradient />
+            </button>
+          </>
+        )}
 
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
       </form>
