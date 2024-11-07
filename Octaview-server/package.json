@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-  "dev": "ts-node-dev --respawn --transpile-only src/app/app.ts",
+"scripts": {
+  "dev": "ts-node-dev --respawn --transpile-only --watch src src/app/app.ts",
   "test": "echo \"Error: no test specified\" && exit 1"
 },
+
 
   "author": "",
   "license": "ISC",
