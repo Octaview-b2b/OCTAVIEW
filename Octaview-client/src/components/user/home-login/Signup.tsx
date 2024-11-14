@@ -14,6 +14,7 @@ export function SignupForm() {
     twitterPassword: '',
   });
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [passwordFocus,setPasswordFocus]=useState(false)
 
   const validate = (value: string) => {
     const errors: string[] = [];
@@ -40,6 +41,13 @@ export function SignupForm() {
       setErrorMessages(errors);
     }
   };
+
+  const handleFocus=()=>{
+    setPasswordFocus(true)
+  }
+  const handleBlur=()=>{
+    setPasswordFocus(false)
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -136,13 +144,16 @@ export function SignupForm() {
                 onChange={handleInputChange}
                 placeholder="••••••••"
                 type="password"
+                onFocus={handleFocus}
+                onBlur={handleBlur}
               />
-              {/* Show password strength validation errors */}
-              <div className="text-sm text-red-500 mt-2">
-                {errorMessages.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
+               {passwordFocus && errorMessages.length > 0 && (
+            <div className="text-sm text-red-500 mt-2">
+              {errorMessages.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
             </LabelInputContainer>
 
             <LabelInputContainer className="mb-8">
