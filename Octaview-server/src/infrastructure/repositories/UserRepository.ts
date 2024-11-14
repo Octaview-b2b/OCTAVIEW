@@ -8,7 +8,6 @@ export class UserRepository implements IuserRepository {
     }
   
 async findByUserEmail(email: string): Promise<UserEntity | null> {
-    console.log("email:", email);  
     const user = await UserModal.findOne({ email });
     return user ? new UserEntity(user.email, user.password, user.companyName) : null;
 }

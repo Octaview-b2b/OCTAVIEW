@@ -23,7 +23,7 @@ const Navbar = () => {
               href="/" 
               className="text-xl font-bold text-black dark:text-white"
             >
-              Logo
+              Octaview
             </a>
           </div>
 
