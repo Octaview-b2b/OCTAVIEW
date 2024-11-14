@@ -1,8 +1,8 @@
-"use client";
 import React, { useState } from 'react';
 import { Label } from "../../ui/Login_ui/label";
 import { Input } from "../../ui/Login_ui/input";
 import { cn } from "../../../lib/utils";
+import validator from 'validator'; // Make sure you have imported the validator
 
 export function SignupForm() {
   const [step, setStep] = useState(1);
@@ -13,6 +13,33 @@ export function SignupForm() {
     password: '',
     twitterPassword: '',
   });
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  const validate = (value: string) => {
+    const errors: string[] = [];
+
+    if (!validator.isLength(value, { min: 6 })) {
+      errors.push('Password must be at least 6 characters long');
+    }
+    if (!/[a-z]/.test(value)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    if (!/[A-Z]/.test(value)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    if (!/[0-9]/.test(value)) {
+      errors.push('Password must contain at least one number');
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+      errors.push('Password must contain at least one special character');
+    }
+
+    if (errors.length === 0) {
+      setErrorMessages(['']);
+    } else {
+      setErrorMessages(errors);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,11 +49,18 @@ export function SignupForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+
+    // Handle OTP and other fields separately
     if (id === 'otp') {
       const sanitizedOtp = value.replace(/\D/g, '').slice(0, 6);
       setOtp(sanitizedOtp);
     } else {
       setFormData({ ...formData, [id]: value });
+
+      // Validate password only if it's the password field
+      if (id === 'password') {
+        validate(value); // Real-time password validation
+      }
     }
   };
 
@@ -103,9 +137,16 @@ export function SignupForm() {
                 placeholder="••••••••"
                 type="password"
               />
+              {/* Show password strength validation errors */}
+              <div className="text-sm text-red-500 mt-2">
+                {errorMessages.map((error, index) => (
+                  <p key={index}>{error}</p>
+                ))}
+              </div>
             </LabelInputContainer>
+
             <LabelInputContainer className="mb-8">
-              <Label htmlFor="twitterPassword">Your Twitter password</Label>
+              <Label htmlFor="twitterPassword">Confirm password</Label>
               <Input
                 id="twitterPassword"
                 value={formData.twitterPassword}
@@ -139,16 +180,6 @@ const BottomGradient = () => {
   );
 };
 
-const LabelInputContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return (
-    <div className={cn("flex flex-col space-y-2 w-full", className)}>
-      {children}
-    </div>
-  );
+const LabelInputContainer = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  return <div className={cn("flex flex-col space-y-2 w-full", className)}>{children}</div>;
 };

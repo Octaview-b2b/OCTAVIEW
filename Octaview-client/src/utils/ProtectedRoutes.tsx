@@ -1,9 +1,8 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
 import { selectAccessToken } from '../service/redux/store';
 
-const ProtectedRoute: React.FC = () => {
+const ProtectedRoute = () => {
   const token = useSelector(selectAccessToken)
   if (!token) {
     return <Navigate to="/login" replace />;
