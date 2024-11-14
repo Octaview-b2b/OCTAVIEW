@@ -43,7 +43,7 @@ export function LoginForm() {
     onSuccess: (data: LoginResponse) => {
       dispatch(login(data.token));
       console.log("Login success", data);
-      // navigate('/dash')
+      navigate('/dash')
     },
     onError: (error: Error) => {
       console.error("Login failed:", error);

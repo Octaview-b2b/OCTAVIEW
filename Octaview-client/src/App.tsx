@@ -10,6 +10,7 @@ import Meet from "./pages/user/Meet"
 import Settings from "./pages/user/Settings"
 import AdminDash from "./pages/admin/AdminDash"
 import AdminLogin from "./pages/admin/Login"
+import ProtectedRoute from "./utils/ProtectedRoutes"
 
 
 function App() {
@@ -21,12 +22,14 @@ function App() {
       <Route path="/docs" element={<Doc/>}/>
       <Route path="/login" element={<Login/>}/>
 
+      <Route element={<ProtectedRoute/>}>
       <Route path="/dash" element={<Dash/>}/>
       <Route path="/candidates" element={<CandidateList/>}/>
       <Route path="/selected-candidates" element={<SelectedCandidates/>}/>
       <Route path="/scheduled-iterviews" element={<ScheduledCandidates/>}/>
       <Route path="/settings" element={<Settings/>}/>
       <Route path="/meet" element={<Meet/>}/>
+      </Route>
 
       <Route path="/admin" element={<AdminDash/>}/>
       <Route path="/admin-login" element={<AdminLogin/>}/>
