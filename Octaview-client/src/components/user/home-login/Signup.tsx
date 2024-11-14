@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Label } from "../../ui/Login_ui/label";
 import { Input } from "../../ui/Login_ui/input";
 import { cn } from "../../../lib/utils";
-import validator from 'validator'; // Make sure you have imported the validator
+import validator from 'validator'; 
 
 export function SignupForm() {
   const [step, setStep] = useState(1);

@@ -3,11 +3,11 @@ import store from "../redux/store";
 import { selectAccessToken } from "../redux/store";
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/api/user', // Make sure baseURL is correct
+  baseURL: 'http://localhost:5000/api/user', 
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 5000, // Optional: Set a timeout to avoid hanging requests
+  timeout: 5000, 
 });
 
 axiosInstance.interceptors.request.use((config) => {
