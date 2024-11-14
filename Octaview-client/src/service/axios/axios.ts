@@ -21,13 +21,7 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      console.error('Unauthorized access. Token might be expired.');
-    } else if (error.response?.status === 500) {
-      console.error('Server error:', error.response);
-    } else {
-      console.error('Request failed:', error.message);
-    }
+    console.error('Request failed:', error.message);
     return Promise.reject(error);
   }
 );

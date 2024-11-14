@@ -1,3 +1,4 @@
+import { SignupCredentials } from "../../lib/interface";
 import axiosInstance from "../axios/axios";
 
 export const loginUser = async (credentials: { email: string; password: string }): Promise<any> => {
@@ -10,9 +11,9 @@ export const loginUser = async (credentials: { email: string; password: string }
   }
 };
 
-export const signupUser = async ():Promise<any>=>{
+export const signupUser = async (credentials:SignupCredentials):Promise<any>=>{
   try {
-    const response = await axiosInstance.post('/signup')
+    const response = await axiosInstance.post('/signup',credentials)
     return response.data
   } catch (error) {
     console.log("signup failed",error);

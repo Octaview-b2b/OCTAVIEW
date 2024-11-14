@@ -3,6 +3,13 @@ import { Label } from "../../ui/Login_ui/label";
 import { Input } from "../../ui/Login_ui/input";
 import { cn } from "../../../lib/utils";
 import validator from 'validator'; 
+import { useMutation } from '@tanstack/react-query';
+import { signupUser } from '../../../service/Api/userApis';
+import { SignupCredentials } from '../../../lib/interface';
+import { useDispatch } from 'react-redux';
+import { login } from '../../../service/redux/authSlice';
+import { useNavigate } from 'react-router-dom';
+
 
 export function SignupForm() {
   const [step, setStep] = useState(1);
@@ -15,6 +22,8 @@ export function SignupForm() {
   });
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [passwordFocus,setPasswordFocus]=useState(false)
+  const dispatch =  useDispatch()
+  const navigate = useNavigate()
 
   const validate = (value: string) => {
     const errors: string[] = [];
@@ -51,26 +60,47 @@ export function SignupForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+   if (step===3) {
+    mutate({
+      companyName: formData.company,
+      email: formData.email,
+      password: formData.password,
+    });
     console.log("Form submitted", formData);
-    setStep(step + 1);
+   }else{
+    setStep(step+1)
+   }   
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-
-    // Handle OTP and other fields separately
     if (id === 'otp') {
       const sanitizedOtp = value.replace(/\D/g, '').slice(0, 6);
       setOtp(sanitizedOtp);
     } else {
       setFormData({ ...formData, [id]: value });
 
-      // Validate password only if it's the password field
       if (id === 'password') {
-        validate(value); // Real-time password validation
+        validate(value); 
       }
     }
   };
+  const { mutate, isPending, isError, error, data } = useMutation<any,Error,SignupCredentials>({
+    mutationFn: (credentials) => signupUser(credentials),
+    onSuccess: (data) => {
+      dispatch(login(data.token));
+      console.log("Signup successful", data);
+      navigate('/dash')
+    },
+    onError: (error) => {
+      if ((error as any).response?.data?.error) {
+        const serverError = (error as any).response.data.error;
+        console.error("Signup error:", serverError)
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    },
+  });
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
@@ -103,7 +133,6 @@ export function SignupForm() {
             </LabelInputContainer>
             <button
               className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-              type="submit"
             >
               Next &rarr;
               <BottomGradient />
@@ -126,7 +155,7 @@ export function SignupForm() {
             </LabelInputContainer>
             <button
               className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-              type="submit"
+             
             >
               Next &rarr;
               <BottomGradient />
