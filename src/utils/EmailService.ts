@@ -1,0 +1,28 @@
+import nodemailer from "nodemailer";
+
+export class EmailService {
+    private transporter: nodemailer.Transporter;
+
+    constructor() {
+        this.transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER, // Your email
+                pass: process.env.EMAIL_PASS, // Your email password or app-specific password
+            },
+        });
+    }
+
+    async sendEmail(to: string, subject: string, text: string): Promise<void> {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            text,
+        };
+
+        await this.transporter.sendMail(mailOptions);
+    }
+}
