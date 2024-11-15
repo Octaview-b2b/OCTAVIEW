@@ -3,5 +3,5 @@ export class UserEntity {
 }
 
 export class OtpEntity{
-    constructor(public email:string,public otp:string,public expiry:string){}
+    constructor(public email:string,public otp:string,public expiry:number){}
 }

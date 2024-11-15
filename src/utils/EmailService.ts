@@ -9,8 +9,8 @@ export class EmailService {
             port: 587,
             secure: false,
             auth: {
-                user: process.env.EMAIL_USER, // Your email
-                pass: process.env.EMAIL_PASS, // Your email password or app-specific password
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS, 
             },
         });
     }
