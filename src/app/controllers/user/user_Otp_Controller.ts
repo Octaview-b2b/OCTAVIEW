@@ -2,10 +2,12 @@ import { Request,Response } from "express";
 import { OtpUseCase } from "../../../core/use-cases/user/OtpUser";
 import { OtpRepository } from "../../../infrastructure/repositories/OtpRepository";
 import { EmailService } from "../../../utils/EmailService";
+import { UserRepository } from "../../../infrastructure/repositories/UserRepository";
 
 const emailService = new EmailService()
 const otpRepositery = new OtpRepository()
-const otpUsecase = new OtpUseCase(otpRepositery,emailService)
+const userRepository= new UserRepository()
+const otpUsecase = new OtpUseCase(otpRepositery,emailService,userRepository)
 
 export const generateOtp=async(req:Request,res:Response)=>{
     try {
@@ -23,6 +25,8 @@ export const generateOtp=async(req:Request,res:Response)=>{
 export const verifyOtp = async (req: Request, res: Response) => {
     try {
         const { email, otp } = req.body;
+        console.log("hit", req.body);
+        
         if (!email || !otp) throw new Error("Email and OTP are required");
         await otpUsecase.verifyOtp(email, otp);
         res.status(200).json({ message: "OTP verified successfully" });

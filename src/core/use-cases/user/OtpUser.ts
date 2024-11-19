@@ -1,12 +1,17 @@
 import { EmailService } from '../../../utils/EmailService'
 import { OtpEntity } from '../../entities/userEntity'
 import { IOtpRepositery } from '../../interfaces/repositories/IUserRepository'
+import { IuserRepository } from '../../interfaces/repositories/IUserRepository'
 import crypto from 'crypto'
 
 export class OtpUseCase {
-    constructor(private otpRepositery:IOtpRepositery,private emailService:EmailService) {}
+    constructor(private otpRepositery:IOtpRepositery,private emailService:EmailService,private userRepository:IuserRepository) {}
 
     async generateOtp(email:string):Promise<void>{
+        const existingUser = await this.userRepository.findByUserEmail(email)
+        if (existingUser) {
+            throw new Error("User already exists")
+        }
         const otp = crypto.randomInt(100000, 999999).toString()
         const expiry = Date.now()+5*60*1000
 
