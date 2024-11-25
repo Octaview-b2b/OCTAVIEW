@@ -1,4 +1,4 @@
-import express from 'express';
+import express,{Request,Response,NextFunction} from 'express';
 import router from './routers';
 import { connectDb } from '../infrastructure/data-sources/mongodb/mongodb-contact-data-source';
 import dotenv from 'dotenv';
@@ -17,6 +17,11 @@ app.use(cors({
 
 app.use(express.json());
 app.use('/api', router); 
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
+});
 
 const startServer = async () => {
   await connectDb();
