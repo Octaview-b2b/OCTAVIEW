@@ -6,8 +6,7 @@ export class JobUseCase{
     constructor(private jobRepository:IjobRepository){}
 
     async createJob(jobData:JobEntity,userId:string):Promise<void>{
-        console.log(jobData);
-        
+       
         await this.jobRepository.create(jobData,userId)
     }
 
@@ -25,5 +24,11 @@ export class JobUseCase{
         return { jobs, hasMore, nextPage };
     }
     
-      
+    async editJob(jobId: string, jobData: JobEntity): Promise<void> {
+        await this.jobRepository.update(jobId, jobData);
+    }
+
+    async deleteJob(jobId: string, userId: string): Promise<void> {
+        await this.jobRepository.delete(jobId, userId);
+    }
 }

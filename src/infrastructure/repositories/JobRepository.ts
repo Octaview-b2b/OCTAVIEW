@@ -46,13 +46,14 @@ export class JobRepository implements IjobRepository {
                     },
                 },
             ]);
-            console.log('Aggregation Result:', JSON.stringify(aggregationResult, null, 2));
+        
 
             const result = aggregationResult[0];
             const jobs = result.paginatedJobs || [];
             const totalJobs = result.totalCount[0]?.total || 0;
 
             const jobEntities = jobs.map((job: any) => new JobEntity(
+                job.jobs._id, 
                 job.jobs.job_title,
                 job.jobs.skills,
                 job.jobs.job_role,
@@ -65,8 +66,6 @@ export class JobRepository implements IjobRepository {
                 job.jobs.description
             ));
 
-            console.log('job entitty:', jobEntities);
-
 
             return { jobs: jobEntities, totalJobs };
         } catch (error) {
@@ -74,6 +73,21 @@ export class JobRepository implements IjobRepository {
         }
     }
 
+    async update(jobId: string, job: JobEntity): Promise<void> {
+        const updatedJob = await JobModel.findByIdAndUpdate(jobId, job, { new: true });
+        if (!updatedJob) {
+            throw new Error("Job not found or failed to update");
+        }
+    }
 
+    async delete(jobId: string, userId: string): Promise<void> {
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            throw new Error("Job not found");
+        }
+
+        await UserModel.findByIdAndUpdate(userId, { $pull: { jobs: jobId } });
+        await JobModel.findByIdAndDelete(jobId);
+    }
 
 }

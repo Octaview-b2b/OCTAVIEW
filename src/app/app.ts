@@ -2,6 +2,8 @@ import express,{Request,Response,NextFunction} from 'express';
 import router from './routers';
 import { connectDb } from '../infrastructure/data-sources/mongodb/mongodb-contact-data-source';
 import dotenv from 'dotenv';
+
+
 const cors = require('cors');
 
 dotenv.config();

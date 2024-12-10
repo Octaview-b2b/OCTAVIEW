@@ -1,5 +1,6 @@
 export class JobEntity {
     constructor(
+      public id: string|null,
       public job_title: string,
       public skills: string[],
       public job_role: string,
