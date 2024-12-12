@@ -1,5 +1,5 @@
 import { JobEntity } from "../../entities/jobEntity";
-import { IjobRepository } from "../../interfaces/repositories/IJobRepository";
+import { IjobRepository } from "../../interfaces/user/IJobRepository";
 
 
 export class JobUseCase{
@@ -30,5 +30,9 @@ export class JobUseCase{
 
     async deleteJob(jobId: string, userId: string): Promise<void> {
         await this.jobRepository.delete(jobId, userId);
+    }
+    async getAllJobsByUserId(userId: string): Promise<JobEntity[]> {
+        const jobs = await this.jobRepository.findJobsWithoutPagination(userId);
+        return jobs;
     }
 }

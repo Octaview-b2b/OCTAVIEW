@@ -1,4 +1,4 @@
-import { IuserRepository } from "../../interfaces/repositories/IUserRepository";
+import { IuserRepository } from "../../interfaces/user/IUserRepository";
 import { UserEntity } from "../../entities/userEntity";
 import { HashService } from "../../../utils/HashService";
 import { AuthTokenService } from "../../../utils/AuthTokenService";

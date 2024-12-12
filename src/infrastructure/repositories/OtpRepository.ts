@@ -1,4 +1,4 @@
-import { IOtpRepositery } from "../../core/interfaces/repositories/IUserRepository";
+import { IOtpRepositery } from "../../core/interfaces/user/IUserRepository";
 import { OtpEntity } from "../../core/entities/userEntity";
 
 interface OtpStorage {

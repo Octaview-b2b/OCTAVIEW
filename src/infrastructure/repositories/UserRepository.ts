@@ -1,4 +1,4 @@
-import { IuserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IuserRepository } from "../../core/interfaces/user/IUserRepository";
 import { UserEntity } from "../../core/entities/userEntity";
 import { UserModel } from "../data-sources/mongodb/models/User";
 import { IUser } from "../data-sources/mongodb/models/User";
@@ -7,6 +7,7 @@ export class UserRepository implements IuserRepository {
     async create(user: UserEntity): Promise<void> {
         // MongoDB will automatically generate the id field
         await UserModel.create(user);
+
     }
 
     async findByUserEmail(email: string): Promise<UserEntity | null> {

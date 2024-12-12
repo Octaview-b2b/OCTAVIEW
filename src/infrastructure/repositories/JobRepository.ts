@@ -1,6 +1,6 @@
 import { log } from "console";
 import { JobEntity } from "../../core/entities/jobEntity";
-import { IjobRepository } from "../../core/interfaces/repositories/IJobRepository";
+import { IjobRepository } from "../../core/interfaces/user/IJobRepository";
 import { JobModel } from "../data-sources/mongodb/models/Jobs";
 import { UserModel } from "../data-sources/mongodb/models/User";
 
@@ -90,4 +90,36 @@ export class JobRepository implements IjobRepository {
         await JobModel.findByIdAndDelete(jobId);
     }
 
+    async findJobsWithoutPagination(userId: string): Promise<JobEntity[]> {
+        try {
+          // Fetch the user and ensure the user exists
+          const user = await UserModel.findById(userId);
+          if (!user) {
+            throw new Error("User not found");
+          }
+      
+          // Fetch all the jobs related to the user
+          const jobs = await JobModel.find({ _id: { $in: user.jobs } });
+      
+          // Convert job documents to JobEntity instances
+          const jobEntities = jobs.map((job: any) => new JobEntity(
+            job._id, 
+            job.job_title,
+            job.skills,
+            job.job_role,
+            job.jobType,
+            job.min_salary,
+            job.max_salary,
+            job.job_level,
+            job.location,
+            job.city,
+            job.description
+          ));
+      
+          return jobEntities;
+        } catch (error) {
+          throw new Error(error instanceof Error ? error.message : "Internal server error");
+        }
+      }
+      
 }

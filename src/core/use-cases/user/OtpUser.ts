@@ -1,7 +1,7 @@
 import { EmailService } from '../../../utils/EmailService'
 import { OtpEntity } from '../../entities/userEntity'
-import { IOtpRepositery } from '../../interfaces/repositories/IUserRepository'
-import { IuserRepository } from '../../interfaces/repositories/IUserRepository'
+import { IOtpRepositery } from '../../interfaces/user/IUserRepository'
+import { IuserRepository } from '../../interfaces/user/IUserRepository'
 import crypto from 'crypto'
 
 export class OtpUseCase {
