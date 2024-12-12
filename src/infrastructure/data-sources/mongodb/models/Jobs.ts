@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 export interface IJob extends Document {
   job_title: string;
@@ -12,6 +12,7 @@ export interface IJob extends Document {
   city: string;
   description: string;
   hidden: boolean;
+  applications: ObjectId;
 }
 const JobSchema: Schema = new Schema(
   {
@@ -26,6 +27,7 @@ const JobSchema: Schema = new Schema(
     city: { type: String, required: true },
     description: { type: String, required: true },
     hidden: { type: Boolean, default: false },
+    applications: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate" },
   },
   { timestamps: true } 
 );
