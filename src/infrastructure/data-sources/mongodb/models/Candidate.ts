@@ -5,7 +5,7 @@ export interface ICandidate extends Document {
   full_Name: string;
   DOB: Date;
   linkedin: string;
-  resume: string;
+  resumeUrl: string;
   country: string;
   email: string;
   contact_no: number;
@@ -23,6 +23,7 @@ const candidateSchema: Schema = new Schema({
   contact_no: { type: Number, required: true },
   status: { type: Object, required: true },
   github: { type: String, required: true },
+  resumeUrl:{type:String,required:true}
 });
 
 export const CandidateModel = mongoose.model<ICandidate>("Candidate", candidateSchema);
