@@ -9,7 +9,6 @@ const candidateUseCase = new CandidateUseCase(candidateRepositery)
 const candidate_Controllers = new Candidate_Controller(candidateUseCase)
 
 const candidateRouter = express.Router()
-
-candidateRouter.post('/:jobId/apply',uploadResume,(req,res)=>candidate_Controllers.apply4Job(req,res))
+candidateRouter.post('/:jobId/', uploadResume, (req, res) => {candidate_Controllers.apply4Job(req, res);});
 
 export default candidateRouter

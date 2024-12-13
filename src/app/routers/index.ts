@@ -7,6 +7,6 @@ const router = Router();
 
 router.use('/user', userAuthRouter);
 router.use('/jobs',JobRouter)
-router.use('/ext',candidateRouter)
+router.use('/jobs/ext/apply',candidateRouter)
 
 export default router;

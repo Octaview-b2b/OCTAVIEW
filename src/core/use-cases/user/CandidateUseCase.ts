@@ -1,34 +1,28 @@
-import { ICandidate } from "../../interfaces/user/ICandidate";
-import { CandidateEntity } from "../../entities/candidateEntity";
-import { uploadResumeToS3 } from "../../../config/awsConfig";
+import { uploadResumeToS3 } from '../../../config/awsConfig';
+import { CandidateEntity } from '../../entities/candidateEntity';
+import { ICandidate } from '../../interfaces/user/ICandidate';
 
 export class CandidateUseCase {
-    constructor(private CandidateRepository: ICandidate) { }
+  constructor(private candidateRepository: ICandidate) {}
 
-    async execute(fullName: string,
-        dob: string,
-        linkedin: string,
-        profile: string,
-        country: string,
-        email: string,
-        contactNo: string,
-        github: string,
-        resume: Express.Multer.File,
-        jobId: string): Promise<void> {
+  async execute(jobApplicationDetails: any, resume: any): Promise<void> {
+    try {
+      const resumeUrl = await uploadResumeToS3(resume);
+      const jobApplication = CandidateEntity.create(
+        jobApplicationDetails.fullName,
+        jobApplicationDetails.DOB,
+        jobApplicationDetails.linkedin,
+        jobApplicationDetails.country,
+        jobApplicationDetails.email,
+        jobApplicationDetails.contactNo,
+        jobApplicationDetails.github,
+        resumeUrl
+      );
 
-        const resumeUrl = await uploadResumeToS3(resume)
-        const jobApplication = CandidateEntity.create(
-            fullName,
-            dob,
-            linkedin,
-            profile,
-            country,
-            email,
-            contactNo,
-            github,
-            resumeUrl)
-        await this.CandidateRepository.save(jobApplication,jobId)
-
-
+      await this.candidateRepository.save(jobApplication, jobApplicationDetails.jobId);
+    } catch (error) {
+      console.error('Error in CandidateUseCase:', error);
+      throw new Error('Error during candidate job application processing.');
     }
+  }
 }
