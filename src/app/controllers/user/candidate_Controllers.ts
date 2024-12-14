@@ -42,4 +42,18 @@ export class Candidate_Controller {
       });
     }
   }
+
+  async getCandidate(req:Request,res:Response){
+    try {
+      const { jobId } = req.params;
+      const candidate = await this.candidateUseCase.getApplications(jobId)
+      console.log('data',candidate);
+      
+      res.status(200).json(candidate)
+    } catch (error) {
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Internal server error",
+      });
+    }
+  }
 }

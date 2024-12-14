@@ -1,6 +1,6 @@
 import { CandidateEntity } from "../../core/entities/candidateEntity";
 import { ICandidate } from "../../core/interfaces/user/ICandidate";
-import CandidateModel from "../data-sources/mongodb/models/Candidate";
+import CandidateModel, { ICandidateModal } from "../data-sources/mongodb/models/Candidate";
 import { JobModel } from "../data-sources/mongodb/models/Jobs";
 
 export class CandidateRepository implements ICandidate {
@@ -28,4 +28,32 @@ export class CandidateRepository implements ICandidate {
       throw new Error("Failed to save candidate.");
     }
   }
+  async getData(jobId: string): Promise<CandidateEntity[]> {
+    try {
+      const jobWithCandidates = await JobModel.findById(jobId).populate("applications").exec();
+      if (!jobWithCandidates) {
+        throw new Error("Job not found.");
+      }
+      const candidates = jobWithCandidates.applications as unknown as ICandidateModal[]; // Type assertion
+      
+      return candidates.map((candidate) => {
+        return CandidateEntity.create(
+          candidate.fullName,
+          candidate.DOB,
+          candidate.linkedin,
+          candidate.country,
+          candidate.email,
+          candidate.contactNo,
+          candidate.github,
+          candidate.resumeUrl
+        );
+      });
+    } catch (error) {
+      console.error("Error fetching candidates:", error);
+      throw new Error("Failed to fetch candidates.");
+    }
+  }
+
+
+  
 }

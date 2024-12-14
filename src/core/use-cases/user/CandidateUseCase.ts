@@ -25,4 +25,7 @@ export class CandidateUseCase {
       throw new Error('Error during candidate job application processing.');
     }
   }
+  async getApplications(jobId:string):Promise<CandidateEntity[]>{
+      return await this.candidateRepository.getData(jobId)
+  }
 }

@@ -12,8 +12,9 @@ export interface IJob extends Document {
   city: string;
   description: string;
   hidden: boolean;
-  applications: ObjectId;
+  applications: ObjectId[];  // Changed to an array of ObjectIds
 }
+
 const JobSchema: Schema = new Schema(
   {
     job_title: { type: String, required: true },
@@ -27,10 +28,9 @@ const JobSchema: Schema = new Schema(
     city: { type: String, required: true },
     description: { type: String, required: true },
     hidden: { type: Boolean, default: false },
-    applications: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate" },
+    applications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Candidate" }],  // Correctly referencing Candidate model
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 export const JobModel = mongoose.model<IJob>("Job", JobSchema);
-

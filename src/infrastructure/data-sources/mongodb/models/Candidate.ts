@@ -1,15 +1,15 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 
-export interface ICandidate extends Document {
+export interface ICandidateModal extends Document {
   _id: string;
-  full_Name: string;
+  fullName: string;
   DOB: string;  
   linkedin: string;
   resumeUrl: string;
   country: string;
   email: string;
-  contact_no: string;  
+  contactNo: string;  
   status: object;
   github: string;
 }
@@ -19,7 +19,7 @@ export interface ICandidate extends Document {
 const candidateSchema = new Schema(
   {
     fullName: { type: String, required: true },
-    dob: { type: String, required: true },
+    DOB: { type: String, required: true },
     linkedin: { type: String, required: true },
     country: { type: String, required: true },
     email: { type: String, required: true },
