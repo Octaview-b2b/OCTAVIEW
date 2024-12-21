@@ -9,6 +9,7 @@ export class CandidateUseCase {
     try {
       const resumeUrl = await uploadResumeToS3(resume);
       const jobApplication = CandidateEntity.create(
+        jobApplicationDetails.jobId,
         jobApplicationDetails.fullName,
         jobApplicationDetails.DOB,
         jobApplicationDetails.linkedin,

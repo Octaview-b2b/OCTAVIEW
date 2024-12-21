@@ -34,26 +34,25 @@ export class CandidateRepository implements ICandidate {
       if (!jobWithCandidates) {
         throw new Error("Job not found.");
       }
-      const candidates = jobWithCandidates.applications as unknown as ICandidateModal[]; // Type assertion
-      
+      const candidates = jobWithCandidates.applications as unknown as ICandidateModal[];
+  
       return candidates.map((candidate) => {
-        return CandidateEntity.create(
-          candidate.fullName,
-          candidate.DOB,
-          candidate.linkedin,
-          candidate.country,
-          candidate.email,
-          candidate.contactNo,
-          candidate.github,
-          candidate.resumeUrl
-        );
+        return {
+          id: candidate._id, // Explicitly include `id`
+          fullName: candidate.fullName,
+          DOB: candidate.DOB,
+          linkedin: candidate.linkedin,
+          country: candidate.country,
+          email: candidate.email,
+          contactNo: candidate.contactNo,
+          github: candidate.github,
+          resumeUrl: candidate.resumeUrl,
+        };
       });
     } catch (error) {
       console.error("Error fetching candidates:", error);
       throw new Error("Failed to fetch candidates.");
     }
   }
-
-
-  
+    
 }

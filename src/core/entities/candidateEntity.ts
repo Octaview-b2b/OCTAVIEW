@@ -1,5 +1,6 @@
 export class CandidateEntity {
   constructor(
+    public id: string, // Add `id`
     public fullName: string,
     public DOB: string,
     public linkedin: string,
@@ -11,6 +12,7 @@ export class CandidateEntity {
   ) {}
 
   static create(
+    id: string,
     fullName: string,
     DOB: string,
     linkedin: string,
@@ -21,6 +23,7 @@ export class CandidateEntity {
     resumeUrl: string
   ): CandidateEntity {
     return new CandidateEntity(
+      id,
       fullName,
       DOB,
       linkedin,
