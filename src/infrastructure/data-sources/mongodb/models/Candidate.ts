@@ -12,6 +12,7 @@ export interface ICandidateModal extends Document {
   contactNo: string;  
   status: object;
   github: string;
+  selection:boolean
 }
 
 
@@ -27,6 +28,7 @@ const candidateSchema = new Schema(
     github: { type: String, required: true },
     status:{type :Object},
     resumeUrl: { type: String, required: true },
+    selection:{type:Boolean,default:false}
   },
   { timestamps: true }
 );

@@ -35,10 +35,12 @@ export class CandidateRepository implements ICandidate {
         throw new Error("Job not found.");
       }
       const candidates = jobWithCandidates.applications as unknown as ICandidateModal[];
-  
-      return candidates.map((candidate) => {
+      const filteredCandidates = candidates.filter(candidate => !candidate.selection);
+
+
+      return filteredCandidates.map((candidate) => {
         return {
-          id: candidate._id, // Explicitly include `id`
+          id: candidate._id, 
           fullName: candidate.fullName,
           DOB: candidate.DOB,
           linkedin: candidate.linkedin,
@@ -54,5 +56,6 @@ export class CandidateRepository implements ICandidate {
       throw new Error("Failed to fetch candidates.");
     }
   }
+  
     
 }
