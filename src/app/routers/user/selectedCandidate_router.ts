@@ -13,5 +13,6 @@ const selectedCandidateRoutes = express.Router();
 
 selectedCandidateRoutes.post("/", selectedCandidateController.selectCandidate);
 selectedCandidateRoutes.get("/:jobId", selectedCandidateController.getSelectedCandidates);
+selectedCandidateRoutes.delete("/:candidateId",selectedCandidateController.rejectCandidate);
 
 export { selectedCandidateRoutes };

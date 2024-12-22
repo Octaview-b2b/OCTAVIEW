@@ -39,5 +39,15 @@ export class SelectedCandidateController {
         });
       }
     };
+
+     rejectCandidate = async (req:Request, res:Response):Promise<void>=>{
+        try {
+            const {candidateId} = req.params;
+            await this.selectedCandidateUseCase.deleteSelectedCandidate(candidateId);
+            res.status(200).json({message:"Candidate rejected successfully"});
+        } catch (error) {
+            error instanceof Error ? error.message : "Internal server error";
+        }
+     }
   }
   

@@ -56,6 +56,8 @@ export class CandidateRepository implements ICandidate {
       throw new Error("Failed to fetch candidates.");
     }
   }
+
+
   
     
 }

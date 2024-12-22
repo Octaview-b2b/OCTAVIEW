@@ -59,6 +59,17 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
       throw new Error("Failed to fetch selected candidates.");
     }
   }
+  async deleteSelectedCandidate(candidateId: string): Promise<void> {
+    try {
+     await SelectedCandidateModel.findOneAndDelete({ candidate: candidateId });
+     await CandidateModel.findByIdAndDelete(candidateId);
+
+    } catch (error) {
+      console.error("Error deleting selected candidate and candidate:", error);
+      throw new Error("Failed to delete selected candidate and candidate.");
+    }
+  }
+
   async updateSelectionStatus(candidateId: string): Promise<void> {
     try {
       await CandidateModel.findByIdAndUpdate(
