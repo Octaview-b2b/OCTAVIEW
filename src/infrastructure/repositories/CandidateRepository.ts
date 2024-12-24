@@ -11,7 +11,7 @@ export class CandidateRepository implements ICandidate {
       
       const newCandidate = new CandidateModel({
         fullName: candidate.fullName,
-        dob: candidate.DOB,
+        DOB: candidate.DOB,
         linkedin: candidate.linkedin,
         country: candidate.country,
         email: candidate.email,

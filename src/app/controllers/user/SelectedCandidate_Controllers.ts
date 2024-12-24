@@ -31,6 +31,7 @@ export class SelectedCandidateController {
       try {
         const { jobId } = req.params;
         const selectedCandidates = await this.selectedCandidateUseCase.getSelectedCandidates(jobId);
+  console.log('data',selectedCandidates);
   
         res.status(200).json(selectedCandidates);
       } catch (error) {
