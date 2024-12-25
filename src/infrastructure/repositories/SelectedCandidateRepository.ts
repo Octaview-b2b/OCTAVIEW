@@ -39,12 +39,13 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
 
   async getByJobId(jobId: string): Promise<any[]> {
     try {
-      const selectedCandidates = await SelectedCandidateModel.find({ job: jobId })
+      console.log('jobId fromm repo',jobId);
+      
+      const selectedCandidates = await SelectedCandidateModel.find({ job: jobId })  // Query based on jobId in SelectedCandidate
         .populate("candidate")  // Populate candidate details
-        .populate("job")        // Populate job details (if needed)
         .exec();
   
-      return selectedCandidates.map((candidate) => {
+      return selectedCandidates.map((candidate: any) => {
         const candidateData = candidate.candidate as ICandidateModal; // Type assertion here
   
         // Check if candidateData is properly populated before accessing properties
@@ -53,9 +54,9 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
         }
   
         return {
-          _id: (candidate._id as unknown as string).toString(),
+          _id: candidate._id.toString(),  // _id of the SelectedCandidate document
           candidate: {
-            _id: candidateData._id.toString(),
+            _id: candidateData._id.toString(),  // _id of the Candidate document
             fullName: candidateData.fullName,
             DOB: candidateData.DOB,
             linkedin: candidateData.linkedin,
@@ -67,7 +68,7 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
             github: candidateData.github,
             selection: candidateData.selection,
           },
-          selectionStatus: candidate.status,
+          selectionStatus: candidate.status,  // The selection status from SelectedCandidate
           meetUrl: candidate.meetUrl,
           report: candidate.report,
           date: candidate.date,
@@ -78,6 +79,7 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
       throw new Error("Failed to fetch selected candidates.");
     }
   }
+  
   
 
   async deleteSelectedCandidate(candidateId: string): Promise<void> {

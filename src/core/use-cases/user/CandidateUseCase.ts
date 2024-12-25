@@ -27,7 +27,6 @@ export class CandidateUseCase {
     }
   }
   async getApplications(jobId:string):Promise<CandidateEntity[]>{
-    console.log('jobId::::::',jobId);
     
       return await this.candidateRepository.getData(jobId)
   }

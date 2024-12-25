@@ -8,8 +8,6 @@ export class SelectedCandidateController {
     selectCandidate = async (req: Request, res: Response): Promise<void> => {
       try {
         const { candidateId, jobId, meetUrl, report, status } = req.body;
-  
-        console.log("Request Body: ", req.body);
         await this.selectedCandidateUseCase.selectCandidate(
           candidateId,
           jobId,
@@ -31,7 +29,7 @@ export class SelectedCandidateController {
       try {
         const { jobId } = req.params;
         const selectedCandidates = await this.selectedCandidateUseCase.getSelectedCandidates(jobId);
-  console.log('data',selectedCandidates);
+        console.log('get selected candidateata',selectedCandidates);
   
         res.status(200).json(selectedCandidates);
       } catch (error) {

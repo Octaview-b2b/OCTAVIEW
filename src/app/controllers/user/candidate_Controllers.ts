@@ -46,7 +46,7 @@ export class Candidate_Controller {
   async getCandidate(req:Request,res:Response){
     try {
       const { jobId } = req.params;
-      console.log('jobId:',jobId);
+      console.log('jobId /candidte ',jobId);
       
       const candidate = await this.candidateUseCase.getApplications(jobId)
       console.log('data applications:',candidate);
