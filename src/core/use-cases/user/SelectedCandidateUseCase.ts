@@ -56,4 +56,14 @@ export class SelectedCandidateUseCase {
         throw new Error("Failed to update interview date and time.");
       }
     }
+
+    async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
+      try {
+        const scheduledInterviews = await this.selectedCandidateRepository.getScheduledInterviewsByUserId(userId);
+        return scheduledInterviews;
+      } catch (error) {
+        console.error("Error in getting scheduled interviews:", error);
+        throw new Error("Failed to fetch scheduled interviews.");
+      }
+    }
 }

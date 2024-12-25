@@ -6,7 +6,7 @@ export class SelectedCandidateEntity {
       public time: string,
       public meetUrl: string,
       public report: string,
-      public status: "hired" | "rejected" | "onhold"
+      public status: "scheduled"|"hired" | "rejected" | "onhold"
     ) {}
   
     static create(
@@ -16,7 +16,7 @@ export class SelectedCandidateEntity {
       date: string,  
       meetUrl: string,
       report: string,
-      status: "hired" | "rejected" | "onhold"
+      status: "scheduled"|"hired" | "rejected" | "onhold"
     ): SelectedCandidateEntity {
       return new SelectedCandidateEntity(candidate, job, date,time, meetUrl, report, status);
     }

@@ -14,5 +14,6 @@ selectedCandidateRoutes.post("/", selectedCandidateController.selectCandidate);
 selectedCandidateRoutes.get("/:jobId", selectedCandidateController.getSelectedCandidates);
 selectedCandidateRoutes.delete("/:candidateId",selectedCandidateController.rejectCandidate);
 selectedCandidateRoutes.put("/:selectedCandidateId",selectedCandidateController.updateInterviewDateTime);
+selectedCandidateRoutes.get('/scheduled-interviews/:userId', selectedCandidateController.getScheduledInterviewsByUserId);
 
 export { selectedCandidateRoutes };

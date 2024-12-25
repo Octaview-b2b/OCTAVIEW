@@ -67,5 +67,23 @@ export class SelectedCandidateController {
         res.status(500).json({ message: error instanceof Error ? error.message : "Internal server error" });
       }
     }
+
+    getScheduledInterviewsByUserId = async (req: Request, res: Response): Promise<void> => {
+      try {
+        const { userId } = req.params; // Extract userId from request parameters
+        const scheduledInterviews = await this.selectedCandidateUseCase.getScheduledInterviewsByUserId(userId);
+        console.log('Scheduled Interviews:', scheduledInterviews);
+  
+        if (scheduledInterviews.length === 0) {
+          res.status(404).json({ message: "No scheduled interviews found for this user." });
+        } else {
+          res.status(200).json(scheduledInterviews);
+        }
+      } catch (error) {
+        res.status(500).json({
+          error: error instanceof Error ? error.message : "Internal server error",
+        });
+      }
+    };
   }
   
