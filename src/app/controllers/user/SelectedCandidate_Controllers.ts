@@ -48,5 +48,24 @@ export class SelectedCandidateController {
             error instanceof Error ? error.message : "Internal server error";
         }
      }
+
+     updateInterviewDateTime = async (req: Request, res: Response): Promise<void>=> {
+      const { selectedCandidateId } = req.params;
+      const { interviewDate, interviewTime } = req.body;
+      console.log('updateInterviewDateTime', selectedCandidateId, interviewDate, interviewTime);
+      
+      try {
+        await this.selectedCandidateUseCase.updateInterviewDateTimeUseCase(
+          selectedCandidateId,
+          interviewDate,
+          interviewTime
+        );
+        console.log(`Successfully updated interview date and time for candidate: ${selectedCandidateId}`);
+        res.status(200).json({ message: "Interview date and time updated successfully." });
+      } catch (error) {
+        console.error("Error in updating interview date and time:", error);
+        res.status(500).json({ message: error instanceof Error ? error.message : "Internal server error" });
+      }
+    }
   }
   

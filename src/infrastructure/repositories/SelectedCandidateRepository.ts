@@ -9,6 +9,7 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
       const newSelectedCandidate = new SelectedCandidateModel({
         candidate: selectedCandidate.candidate,
         job: selectedCandidate.job,
+        time: selectedCandidate.time,
         date: selectedCandidate.date,
         meetUrl: selectedCandidate.meetUrl,
         report: selectedCandidate.report,
@@ -54,7 +55,7 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
         }
   
         return {
-          _id: candidate._id.toString(),  // _id of the SelectedCandidate document
+          selectedCandidateId: candidate._id.toString(),  // _id of the SelectedCandidate document
           candidate: {
             _id: candidateData._id.toString(),  // _id of the Candidate document
             fullName: candidateData.fullName,
@@ -104,5 +105,25 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
       throw new Error("Failed to update candidate selection status.");
     }
   }
-
+  async updateInterviewDateTimeRepo(selectedCandidateId: string, interviewDate: string, interviewTime: string): Promise<void> {
+    try {
+      const updatedCandidate = await SelectedCandidateModel.findByIdAndUpdate(
+        selectedCandidateId,
+        {
+          date: interviewDate,
+          time: interviewTime,
+        },
+        { new: true }
+      ).exec();
+  
+      console.log('updatedCandidate:', updatedCandidate);
+  
+      if (!updatedCandidate) {
+        throw new Error("Selected candidate not found.");
+      }
+    } catch (error) {
+      console.error("Error in updating interview date and time:", error);
+      throw new Error("Failed to update interview date and time.");
+    }
+  }
 }

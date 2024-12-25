@@ -4,7 +4,8 @@ import { ICandidateModal } from "./Candidate";
 export interface ISelectedCandidate extends Document {
     candidate: ObjectId | ICandidateModal;
     job: ObjectId;
-    date: Date | null;
+    date: string ;
+    time: string;
     meetUrl: string;
     report: string;
     status: "hired" | "rejected" | "onhold";
@@ -14,7 +15,8 @@ const selectedCandidateSchema: Schema = new Schema(
     {
         candidate: { type: mongoose.Schema.Types.ObjectId, ref: "Candidate", required: true },
         job: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true },
-        date: { type: Date, default: null },
+        date: { type: String },
+        time: { type: String }, 
         meetUrl: { type: String },
         report: { type: String },
         status: { 

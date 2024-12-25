@@ -20,7 +20,8 @@ export class SelectedCandidateUseCase {
     const selectedCandidate = SelectedCandidateEntity.create(
       candidateId,
       jobId,
-      null,
+      "",
+      '',
       meetUrl,
       report,
       status
@@ -39,6 +40,20 @@ export class SelectedCandidateUseCase {
       } catch (error) {
         console.error("Error rejecting candidate:", error);
         throw new Error("Failed to reject candidate.");
+      }
+    }
+
+    async updateInterviewDateTimeUseCase(
+      selectedCandidateId: string,
+      interviewDate: string,
+      interviewTime: string
+    ): Promise<void> {
+      try {
+        console.log('updateInterviewDateTimeUsecase:', selectedCandidateId, interviewDate, interviewTime);
+        await this.selectedCandidateRepository.updateInterviewDateTimeRepo(selectedCandidateId, interviewDate, interviewTime);
+      } catch (error) {
+        console.error("Error in updating interview date and time:", error);
+        throw new Error("Failed to update interview date and time.");
       }
     }
 }

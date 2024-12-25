@@ -6,4 +6,5 @@ export interface ISelectedCandidateRepository {
     isCandidateSelected(candidateId: string, jobId: string): Promise<boolean>;
     updateSelectionStatus(candidateId: string): Promise<void> 
     deleteSelectedCandidate(candidateId: string): Promise<void>
+    updateInterviewDateTimeRepo(selectedCandidateId: string, interviewDate: string, interviewTime: string): Promise<void>
   }
