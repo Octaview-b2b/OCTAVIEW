@@ -11,67 +11,78 @@ export class JobRepository implements IjobRepository {
         await UserModel.findByIdAndUpdate(userId, { $push: { jobs: newJob._id } })
     }
 
-    async findJobsPerIdWithPagination(userId: string, page: number, pageSize: number): Promise<{ jobs: JobEntity[], totalJobs: number }> {
-        try {
-            // Fetch the user and ensure the user exists
-            const user = await UserModel.findById(userId);
-            if (!user) {
-                throw new Error("User not found");
-            }
-
-            // Use aggregation for better performance and accurate pagination
-            const aggregationResult = await UserModel.aggregate([
-                { $match: { _id: user._id } }, // Match the specific user
-                {
-                    $lookup: { // Populate jobs
-                        from: 'jobs',
-                        localField: 'jobs',
-                        foreignField: '_id',
-                        as: 'jobs',
-                    }
-                },
-                { $unwind: '$jobs' },
-                {
-                    $sort: { 'jobs.createdAt': -1 } 
-                },
-                {
-                    $facet: {
-                        paginatedJobs: [
-                            { $skip: (page - 1) * pageSize },
-                            { $limit: pageSize },
-                        ],
-                        totalCount: [
-                            { $count: 'total' }
-                        ],
-                    },
-                },
-            ]);
-        
-
-            const result = aggregationResult[0];
-            const jobs = result.paginatedJobs || [];
-            const totalJobs = result.totalCount[0]?.total || 0;
-
-            const jobEntities = jobs.map((job: any) => new JobEntity(
-                job.jobs._id, 
-                job.jobs.job_title,
-                job.jobs.skills,
-                job.jobs.job_role,
-                job.jobs.type,
-                job.jobs.min_salary,
-                job.jobs.max_salary,
-                job.jobs.job_level,
-                job.jobs.location,
-                job.jobs.city,
-                job.jobs.description
-            ));
-
-
-            return { jobs: jobEntities, totalJobs };
-        } catch (error) {
-            throw new Error(error instanceof Error ? error.message : "Internal server error");
+    async findJobsPerIdWithPagination(
+        userId: string, 
+        page: number, 
+        pageSize: number, 
+        searchQuery: string = ""
+      ): Promise<{ jobs: JobEntity[], totalJobs: number }> {
+        const user = await UserModel.findById(userId);
+        if (!user) {
+          throw new Error("User not found");
         }
-    }
+      
+        // Correctly construct the searchMatch filter
+        const searchMatch = searchQuery
+          ? {
+              $or: [
+                { "jobs.job_title": { $regex: searchQuery, $options: "i" } },
+                { "jobs.job_role": { $regex: searchQuery, $options: "i" } },
+                { "jobs.skills": { $regex: searchQuery, $options: "i" } },
+              ],
+            }
+          : {};
+      
+        const aggregationResult = await UserModel.aggregate([
+          { $match: { _id: user._id } }, // Match the user by ID
+          {
+            $lookup: {
+              from: "jobs",
+              localField: "jobs",
+              foreignField: "_id",
+              as: "jobs",
+            },
+          },
+          { $unwind: "$jobs" }, // Unwind jobs array
+          { $match: searchMatch }, // Filter by search query
+          { $sort: { "jobs.createdAt": -1 } }, // Sort by job creation date
+          {
+            $facet: {
+              paginatedJobs: [
+                { $skip: (page - 1) * pageSize }, // Pagination: Skip
+                { $limit: pageSize }, // Pagination: Limit
+              ],
+              totalCount: [{ $count: "total" }], // Count total results
+            },
+          },
+        ]);
+      
+        // Handle aggregation result
+        const result = aggregationResult[0];
+        const jobs = result.paginatedJobs || [];
+        const totalJobs = result.totalCount[0]?.total || 0;
+      
+        // Map jobs to JobEntity instances
+        const jobEntities = jobs.map((job: any) =>
+          new JobEntity(
+            job.jobs._id,
+            job.jobs.job_title,
+            job.jobs.skills,
+            job.jobs.job_role,
+            job.jobs.type,
+            job.jobs.min_salary,
+            job.jobs.max_salary,
+            job.jobs.job_level,
+            job.jobs.location,
+            job.jobs.city,
+            job.jobs.description
+          )
+        );
+      
+        return { jobs: jobEntities, totalJobs };
+      }
+      
+    
 
     async update(jobId: string, job: JobEntity): Promise<void> {
         const updatedJob = await JobModel.findByIdAndUpdate(jobId, job, { new: true });
