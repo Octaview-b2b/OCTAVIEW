@@ -25,13 +25,17 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
 });
 
-const startServer = async () => {
-  await connectDb();
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-};
+(async () => {
+  try {
+    await connectDb();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Error starting server:", err);
+    process.exit(1); 
+  }
+})();
 
-startServer();
 
 export default app;
