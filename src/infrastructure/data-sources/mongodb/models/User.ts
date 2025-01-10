@@ -20,7 +20,8 @@ const userSchema: Schema = new Schema({
   block: { type: Boolean, default: false },
   jobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }], // Allow multiple job references
   selectedApplications: { type: mongoose.Schema.Types.ObjectId, ref: "Selected" },
-  apiTocken: { type: String, required: false },
+  apiToken: { type: String ,default:'weoiqfpwpokspksdoi2189789u23123' },
+
 });
 
 export const UserModel = mongoose.model<IUser>("User", userSchema);

@@ -3,6 +3,7 @@ import { CandidateRepository } from '../../../infrastructure/repositories/Candid
 import { CandidateUseCase } from '../../../core/use-cases/user/CandidateUseCase';
 import { Candidate_Controller } from '../../controllers/user/candidate_Controllers';
 import { uploadResume } from '../../middlewares/MulterSetup';
+import { checkApiKey } from '../../middlewares/ApikeyValidation';
 
 const candidateRepositery = new CandidateRepository();
 const candidateUseCase = new CandidateUseCase(candidateRepositery);
@@ -14,7 +15,7 @@ const candidateRouter = express.Router();
 candidateRouter.get('/:jobId/',(req,res)=>candidate_Controllers.getCandidate(req,res))
 
 // external from/to npm
-candidateExtRouter.post('/:jobId/', uploadResume, (req, res) => {
+candidateExtRouter.post('/:userId/:jobId',checkApiKey,uploadResume, (req, res) => {
     candidate_Controllers.apply4Job(req, res);
 });
 

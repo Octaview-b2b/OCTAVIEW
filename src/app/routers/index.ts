@@ -4,6 +4,7 @@ import JobRouter from './user/jobs_router';
 import {candidateExtRouter,candidateRouter} from './user/candidate_router';
 import { selectedCandidateRoutes } from './user/selectedCandidate_router';
 import { authenticateUser } from '../middlewares/AuthMIddleware';
+import { settingsRouter } from './user/settings_router';
 
 const router = Router();
 
@@ -12,6 +13,7 @@ router.use('/jobs',JobRouter)
 router.use('/candidate',candidateRouter)
 router.use('/jobs/ext/apply',candidateExtRouter)
 router.use('/selected',authenticateUser,selectedCandidateRoutes)
+router.use('/settings',settingsRouter)
 
 export default router;
  
