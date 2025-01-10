@@ -19,15 +19,12 @@ export const checkApiKey = async (req: Request, res: Response, next: NextFunctio
     res.status(400).json({ error: 'User ID is missing' });
     return; 
   }
-
   try {
     const isValid = await settingsRepository.validateApiKey(apiKey, userId);
     if (!isValid) {
       res.status(401).json({ error: 'Invalid API key' });
       return; 
     }
-
-
     next();
   } catch (error) {
     console.error('Error validating API key:', error);
