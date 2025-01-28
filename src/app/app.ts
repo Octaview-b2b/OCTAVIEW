@@ -2,13 +2,17 @@ import express,{Request,Response,NextFunction} from 'express';
 import router from './routers';
 import { connectDb } from '../infrastructure/data-sources/mongodb/mongodb-contact-data-source';
 import dotenv from 'dotenv';
-
+import { initWebSocketServer } from '../infrastructure/websocket/signaling';
+import http from 'http';
 
 const cors = require('cors');
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+initWebSocketServer(server);
+
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
