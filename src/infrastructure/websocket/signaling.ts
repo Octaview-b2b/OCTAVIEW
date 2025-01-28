@@ -16,13 +16,14 @@ export function initWebSocketServer(server: http.Server) {
     socket.on("joinRoom", (roomId) => {
       socket.join(roomId);
       console.log(`${socket.id} joined room ${roomId}`);
-      // Notify others in the room about the new user (optional)
-      socket.to(roomId).emit("newUser", { message: `${socket.id} joined` });
-    });
 
-    // Relay signaling data
-    socket.on("signal", ({ roomId, data }) => {
-      socket.to(roomId).emit("signal", data);
+      // Notify others in the room about the new user
+      socket.to(roomId).emit("newUser", { message: `${socket.id} joined` });
+
+      // Relay signaling data
+      socket.on("signal", ({ roomId, data }) => {
+        socket.to(roomId).emit("signal", data);
+      });
     });
 
     socket.on("disconnect", () => {
