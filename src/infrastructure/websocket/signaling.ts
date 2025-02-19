@@ -1,33 +1,64 @@
-import { Server } from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
 import http from "http";
 
-export function initWebSocketServer(server: http.Server) {
-  const io = new Server(server, {
+export const initWebSocketServer = (server: http.Server) => {
+  const io = new SocketIOServer(server, {
     cors: {
-      origin: "*", // Adjust based on allowed frontend origins
+      origin: "http://localhost:5173",
       methods: ["GET", "POST"],
     },
+    transports: ["websocket"]
   });
 
+  const rooms = new Map<string, Set<string>>();
+
   io.on("connection", (socket) => {
-    console.log("New WebSocket connection:", socket.id);
+    console.log("User connected:", socket.id);
 
-    // Handle joining a room
-    socket.on("joinRoom", (roomId) => {
+    socket.on("join-room", (roomId: string) => {
+      // Initialize room if it doesn't exist
+      if (!rooms.has(roomId)) {
+        rooms.set(roomId, new Set());
+      }
+
+      const room = rooms.get(roomId)!;
+      room.add(socket.id);
       socket.join(roomId);
-      console.log(`${socket.id} joined room ${roomId}`);
 
-      // Notify others in the room about the new user
-      socket.to(roomId).emit("newUser", { message: `${socket.id} joined` });
+      // Notify other users in the room
+      if (room.size > 1) {
+        socket.to(roomId).emit("user-joined");
+      }
 
-      // Relay signaling data
-      socket.on("signal", ({ roomId, data }) => {
-        socket.to(roomId).emit("signal", data);
-      });
+      console.log(`User ${socket.id} joined room ${roomId}. Users in room: ${room.size}`);
+    });
+
+    socket.on("offer", ({ roomId, offer }) => {
+      console.log(`Relaying offer from ${socket.id} in room ${roomId}`);
+      socket.to(roomId).emit("offer", { offer });
+    });
+
+    socket.on("answer", ({ roomId, answer }) => {
+      console.log(`Relaying answer from ${socket.id} in room ${roomId}`);
+      socket.to(roomId).emit("answer", { answer });
+    });
+
+    socket.on("ice-candidate", ({ roomId, candidate }) => {
+      console.log(`Relaying ICE candidate from ${socket.id} in room ${roomId}`);
+      socket.to(roomId).emit("ice-candidate", { candidate });
     });
 
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
+      // Remove user from all rooms they were in
+      rooms.forEach((users, roomId) => {
+        if (users.has(socket.id)) {
+          users.delete(socket.id);
+          if (users.size === 0) {
+            rooms.delete(roomId);
+          }
+        }
+      });
+      console.log("User disconnected:", socket.id);
     });
   });
-}
+};

@@ -12,6 +12,6 @@ export class JobEntity {
       public city: string,
       public description: string,
       public hidden: boolean = false
-    ) {}
+    ) { }
   }
   
