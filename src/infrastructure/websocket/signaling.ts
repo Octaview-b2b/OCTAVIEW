@@ -12,6 +12,7 @@ export const initWebSocketServer = (server: http.Server) => {
 
   const rooms = new Map<string, Set<string>>();
 
+  
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 

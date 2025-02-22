@@ -9,7 +9,7 @@ export class CandidateEntity {
     public contactNo: string,
     public github: string,
     public resumeUrl: string
-  ) {}
+  ) { }
 
   static create(
     id: string,
