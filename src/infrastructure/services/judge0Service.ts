@@ -1,6 +1,7 @@
 import axios from "axios";
 import { JUDGE0_BASE_URL } from "../../config/env";
 
+let url = 'http://localhost:2358'
 
 
 export class Judge0Service {
@@ -11,9 +12,12 @@ export class Judge0Service {
                 source_code: sourceCode,
                 stdin: stdin,
             });
+            console.log('res fro compailer :', response);
+            
 
             return response.data;
         } catch (error) {
+            console.error("Error details:", error);
             throw new Error("Failed to submit code to Judge0");
         }
     }

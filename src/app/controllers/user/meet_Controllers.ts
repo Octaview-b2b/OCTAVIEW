@@ -1,10 +1,12 @@
 import { Request,Response } from "express";
 import { Judge0Service } from "../../../infrastructure/services/judge0Service";
+import { log } from "node:console";
 
 export class MeetController {
     static async executeCode(req: Request, res: Response) {
         try {
             const { languageId, sourceCode, stdin } = req.body;
+            console.log('req.body :', req.body);
 
             if (!languageId || !sourceCode) {
                 return res.status(400).json({ error: "Missing required fields" });
