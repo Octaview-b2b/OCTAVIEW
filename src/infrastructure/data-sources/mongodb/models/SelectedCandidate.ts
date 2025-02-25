@@ -6,7 +6,6 @@ export interface ISelectedCandidate extends Document {
     job: ObjectId;
     date: string ;
     time: string;
-    meetUrl: string;
     report: string;
     status: "scheduled"|"hired" | "rejected" | "onhold";
 }
@@ -17,7 +16,6 @@ const selectedCandidateSchema: Schema = new Schema(
         job: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true },
         date: { type: String },
         time: { type: String }, 
-        meetUrl: { type: String },
         report: { type: String },
         status: { 
             type: String, 

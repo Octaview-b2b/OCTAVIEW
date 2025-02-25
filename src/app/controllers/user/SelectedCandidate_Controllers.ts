@@ -13,7 +13,7 @@ export class SelectedCandidateController {
           jobId,
           meetUrl || "",
           report || "",
-          status || "onhold"
+          status || ""
         );
   
         res.status(200).json({ message: "Candidate selected successfully." });

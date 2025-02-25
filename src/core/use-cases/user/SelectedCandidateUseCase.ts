@@ -5,12 +5,7 @@ export class SelectedCandidateUseCase {
   constructor(private selectedCandidateRepository: ISelectedCandidateRepository) {}
 
   async selectCandidate(
-    candidateId: string,
-    jobId: string,
-    meetUrl: string = "",
-    report: string = "",
-    status: "hired" | "rejected" | "onhold" = "onhold"
-  ): Promise<void> {
+candidateId: string, jobId: string, report: string = "", status: "hired" | "rejected" | "onhold" = "onhold", p0: any  ): Promise<void> {
     const isAlreadySelected = await this.selectedCandidateRepository.isCandidateSelected(candidateId, jobId);
 
     if (isAlreadySelected) {
@@ -22,7 +17,6 @@ export class SelectedCandidateUseCase {
       jobId,
       "",
       '',
-      meetUrl,
       report,
       status
     );

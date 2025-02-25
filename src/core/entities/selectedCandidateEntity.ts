@@ -4,7 +4,6 @@ export class SelectedCandidateEntity {
       public job: string,
       public date: string,
       public time: string,
-      public meetUrl: string,
       public report: string,
       public status: "scheduled"|"hired" | "rejected" | "onhold"
     ) {}
@@ -14,11 +13,10 @@ export class SelectedCandidateEntity {
       job: string,
       time: string,
       date: string,  
-      meetUrl: string,
       report: string,
       status: "scheduled"|"hired" | "rejected" | "onhold"
     ): SelectedCandidateEntity {
-      return new SelectedCandidateEntity(candidate, job, date,time, meetUrl, report, status);
+      return new SelectedCandidateEntity(candidate, job, date,time,report, status);
     }
     
   }

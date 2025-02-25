@@ -2,6 +2,7 @@ import { EmailService } from '../../../utils/EmailService'
 import { OtpEntity } from '../../entities/userEntity'
 import { IOtpRepositery } from '../../interfaces/user/IUserRepository'
 import { IuserRepository } from '../../interfaces/user/IUserRepository'
+import { emailTemplates } from '../../../utils/EmailTemp'
 import crypto from 'crypto'
 
 export class OtpUseCase {
@@ -17,7 +18,8 @@ export class OtpUseCase {
 
         const otpEntity = new OtpEntity(email,otp,expiry)
         await this.otpRepositery.saveOtp(otpEntity)
-        await this.emailService.sendEmail(email,"YOUR OTP FOR OCTAVIEW",`YOUR OTP IS ${otp}`)
+        const emailHtml = emailTemplates.otpEmail(otp)
+        await this.emailService.sendEmail(email,'OTP for verification- Octaview',emailHtml)
     }
 
     async verifyOtp(email:string,otp:string):Promise<boolean>{

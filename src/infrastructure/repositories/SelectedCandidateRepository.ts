@@ -14,7 +14,6 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
         job: selectedCandidate.job,
         time: selectedCandidate.time,
         date: selectedCandidate.date,
-        meetUrl: selectedCandidate.meetUrl,
         report: selectedCandidate.report,
         status: selectedCandidate.status,
       });
@@ -192,7 +191,6 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
             selection: candidateData.selection,
           },
           selectionStatus: candidate.status,
-          meetUrl: candidate.meetUrl,
           report: candidate.report,
           date: candidate.date,
           time: candidate.time, // Include time field
