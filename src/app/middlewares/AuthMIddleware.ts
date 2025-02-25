@@ -18,6 +18,17 @@ console.log('hi on middle',authHeader);
         (req as any).user = decoded; 
         next(); 
     } catch (err) {
-        res.status(403).json({ message: 'Invalid token' });
+        if (err instanceof jwt.JsonWebTokenError) {
+            if (err.name === 'TokenExpiredError') {
+                res.status(401).json({ message: 'Unauthorized: Token has expired' });
+            } else if (err.name === 'JsonWebTokenError') {
+                res.status(403).json({ message: 'Forbidden: Invalid token' });
+            } else {
+                res.status(500).json({ message: 'Internal Server Error' });
+            }
+        } else {
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
     }
-};
+    }
+
