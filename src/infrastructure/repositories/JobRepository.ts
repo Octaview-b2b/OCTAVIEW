@@ -7,8 +7,8 @@ import { UserModel } from "../data-sources/mongodb/models/User";
 
 export class JobRepository implements IjobRepository {
     async create(job: JobEntity, userId: string): Promise<void> {
-        const newJob = await JobModel.create(job)
-        await UserModel.findByIdAndUpdate(userId, { $push: { jobs: newJob._id } })
+      const newJob = await JobModel.create({ ...job, user: userId });
+      await UserModel.findByIdAndUpdate(userId, { $push: { jobs: newJob._id } })
     }
 
     async findJobsPerIdWithPagination(

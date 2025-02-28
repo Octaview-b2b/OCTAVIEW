@@ -10,6 +10,7 @@ export interface IUser extends Document {
   jobs: ObjectId[]; 
   selectedApplications: ObjectId;
   apiToken: string;
+  token: number;
 }
 
 const userSchema: Schema = new Schema({
@@ -21,7 +22,7 @@ const userSchema: Schema = new Schema({
   jobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }], // Allow multiple job references
   selectedApplications: { type: mongoose.Schema.Types.ObjectId, ref: "Selected" },
   apiToken: { type: String ,default:'weoiqfpwpokspksdoi2189789u23123' },
-
+  token: { type: Number, default: 0 },
 });
 
 export const UserModel = mongoose.model<IUser>("User", userSchema);

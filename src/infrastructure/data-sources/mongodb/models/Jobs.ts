@@ -13,6 +13,7 @@ export interface IJob extends Document {
   description: string;
   hidden: boolean;
   applications: ObjectId[];  // Changed to an array of ObjectIds
+  user: ObjectId;
 }
 
 const JobSchema: Schema = new Schema(
@@ -29,6 +30,7 @@ const JobSchema: Schema = new Schema(
     description: { type: String, required: true },
     hidden: { type: Boolean, default: false },
     applications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Candidate" }],  // Correctly referencing Candidate model
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );

@@ -13,6 +13,8 @@ export interface ICandidateModal extends Document {
   status: object;
   github: string;
   selection:boolean
+  jobId: ObjectId;
+  user: ObjectId;
 }
 
 
@@ -28,7 +30,9 @@ const candidateSchema = new Schema(
     github: { type: String, required: true },
     status:{type :Object},
     resumeUrl: { type: String, required: true },
-    selection:{type:Boolean,default:false}
+    selection:{type:Boolean,default:false},
+    jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true }, // Link to job
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Link to employer
   },
   { timestamps: true }
 );

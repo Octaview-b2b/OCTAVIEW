@@ -14,7 +14,10 @@ export class SettingsRepository implements ISettings {
     async getSettingsData(userId: string): Promise<any> {
         const user = await UserModel.findById(userId);
         if (user) {
-            return { apiKey: user.apiToken }; 
+            return {
+             apiKey: user.apiToken,
+             token : user.token
+             }; 
         }
         throw new Error("User not found");
     }
