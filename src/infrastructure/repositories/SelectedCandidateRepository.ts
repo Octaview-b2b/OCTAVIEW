@@ -2,65 +2,65 @@ import { ISelectedCandidateRepository } from "../../core/interfaces/user/ISelect
 import SelectedCandidateModel from "../data-sources/mongodb/models/SelectedCandidate";
 import CandidateModel, { ICandidateModal } from "../data-sources/mongodb/models/Candidate";
 import { SelectedCandidateEntity } from "../../core/entities/selectedCandidateEntity";
-import {UserModel} from "../data-sources/mongodb/models/User";
+import { UserModel } from "../data-sources/mongodb/models/User";
 import { time } from "console";
 import mongoose from "mongoose";
 
 export class SelectedCandidateRepository implements ISelectedCandidateRepository {
   async save(selectedCandidate: SelectedCandidateEntity): Promise<void> {
     try {
-        console.log("Saving candidate with status:", selectedCandidate.status); // Debugging log
+      console.log("Saving candidate with status:", selectedCandidate.status); // Debugging log
 
-        const newSelectedCandidate = new SelectedCandidateModel({
-            candidate: selectedCandidate.candidate,
-            job: selectedCandidate.job,
-            time: selectedCandidate.time,
-            date: selectedCandidate.date,
-            report: selectedCandidate.report,
-            status: selectedCandidate.status,
-        });
+      const newSelectedCandidate = new SelectedCandidateModel({
+        candidate: selectedCandidate.candidate,
+        job: selectedCandidate.job,
+        time: selectedCandidate.time,
+        date: selectedCandidate.date,
+        report: selectedCandidate.report,
+        status: selectedCandidate.status,
+      });
 
-        await newSelectedCandidate.save();
-        console.log("Candidate saved successfully");
+      await newSelectedCandidate.save();
+      console.log("Candidate saved successfully");
 
     } catch (error) {
-        console.error("Error saving selected candidate:", error);
-        throw new Error("Failed to save selected candidate.");
+      console.error("Error saving selected candidate:", error);
+      throw new Error("Failed to save selected candidate.");
     }
-}
+  }
 
-async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> {
+  async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> {
     try {
-      const existingSelection = await SelectedCandidateModel.findOne({ 
-        candidate: candidateId, 
-        job: jobId 
+      const existingSelection = await SelectedCandidateModel.findOne({
+        candidate: candidateId,
+        job: jobId
       }).exec();
-  
-      return !!existingSelection; 
+
+      return !!existingSelection;
     } catch (error) {
       console.error("Error checking if candidate is selected:", error);
       throw new Error("Failed to check candidate selection.");
     }
   }
-  
+
 
   async getByJobId(jobId: string): Promise<any[]> {
     try {
       console.log('jobId from repo', jobId);
-  
+
       // MongoDB Aggregation to filter by "onhold" status
       const selectedCandidates = await SelectedCandidateModel.aggregate([
-        { 
-          $match: { 
+        {
+          $match: {
             job: new mongoose.Types.ObjectId(jobId), // Match by jobId
             status: "shortlisted"  // Only "onhold" candidates
-          } 
+          }
         },
         {
           $lookup: {
             from: "candidates", // Join with the "candidates" collection
-            localField: "candidate", 
-            foreignField: "_id", 
+            localField: "candidate",
+            foreignField: "_id",
             as: "candidate"
           }
         },
@@ -89,20 +89,20 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
           }
         }
       ]);
-  
+
       return selectedCandidates;
     } catch (error) {
       console.error("Error fetching selected candidates:", error);
       throw new Error("Failed to fetch selected candidates.");
     }
   }
-  
-  
+
+
 
   async deleteSelectedCandidate(candidateId: string): Promise<void> {
     try {
-     await SelectedCandidateModel.findOneAndDelete({ candidate: candidateId });
-     await CandidateModel.findByIdAndDelete(candidateId);
+      await SelectedCandidateModel.findOneAndDelete({ candidate: candidateId });
+      await CandidateModel.findByIdAndDelete(candidateId);
 
     } catch (error) {
       console.error("Error deleting selected candidate and candidate:", error);
@@ -133,9 +133,9 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
         },
         { new: true }
       ).exec();
-  
+
       console.log('updatedCandidate:', updatedCandidate);
-  
+
       if (!updatedCandidate) {
         throw new Error("Selected candidate not found.");
       }
@@ -148,14 +148,14 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
   async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
     try {
       console.log('Fetching scheduled interviews for userId:', userId);
-  
+
       // Find jobs created by the user
       const userJobs = await UserModel.findById(userId).select("jobs").populate("jobs").exec();
-  
+
       if (!userJobs || !userJobs.jobs.length) {
         return []; // Return an empty array if no jobs are found for the user
       }
-  
+
       const scheduledInterviews = await SelectedCandidateModel.find({
         job: { $in: userJobs.jobs }, // Match jobs created by the user
         status: "scheduled",         // Filter by "scheduled" status
@@ -163,22 +163,22 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
         .populate("candidate")       // Populate candidate details
         .populate("job")             // Populate job details
         .exec();
-  
+
       // Map over the results and return formatted data
       return scheduledInterviews.map((candidate: any) => {
         const candidateData = candidate.candidate as ICandidateModal; // Type assertion for candidate
         const jobData = candidate.job;                               // Get the job details
-  
+
         // Ensure candidateData is populated
         if (!candidateData) {
           throw new Error('Candidate data is not populated properly');
         }
-  
+
         // Ensure jobData is populated
         if (!jobData) {
           throw new Error('Job data is not populated properly');
         }
-  
+
         return {
           selectedCandidateId: candidate._id.toString(), // SelectedCandidate ID
           candidate: {
@@ -211,5 +211,70 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
       throw new Error("Failed to fetch scheduled interviews.");
     }
   }
-  
+
+
+  async getDataForEmail(candidateId: string): Promise<{candidateName: string;jobTitle: string;companyName: string;email: string;}> {
+    try {
+      let candidateData: {
+        fullName: string;
+        email: string;
+        jobId?: {
+          job_title?: string;
+          companyId?: { name?: string }
+        }
+      } | null = null;
+
+      // Check if the given ID is a SelectedCandidateId
+      const selectedCandidate = await SelectedCandidateModel.findById(candidateId)
+        .populate<{
+          candidate: {
+            fullName: string;
+            email: string;
+            jobId?: { job_title?: string; companyId?: { name?: string } }
+          }
+        }>({
+          path: "candidate",
+          select: "fullName email jobId",
+          populate: {
+            path: "jobId",
+            select: "job_title companyId",
+            populate: {
+              path: "companyId",
+              select: "name"
+            }
+          }
+        })
+        .exec();
+
+      if (selectedCandidate?.candidate) {
+        candidateData = selectedCandidate.candidate;
+      } else {
+        // Otherwise, assume it's a direct candidate ID and fetch candidate details
+        candidateData = await CandidateModel.findById(candidateId)
+          .select("fullName email jobId")
+          .populate<{ jobId: { job_title?: string; companyId?: { name?: string } } }>("jobId", "job_title companyId")
+          .populate<{ companyId: { name?: string } }>("jobId.companyId", "name")
+          .exec();
+      }
+
+      if (!candidateData || !candidateData.email) {
+        throw new Error("Candidate email not found.");
+      }
+
+      return {
+        candidateName: candidateData.fullName,
+        email: candidateData.email,
+        jobTitle: candidateData.jobId?.job_title || "Unknown Job",
+        companyName: candidateData.jobId?.companyId?.name || "Unknown Company"
+      };
+    } catch (error) {
+      console.error("Error fetching candidate details:", error);
+      throw new Error("Failed to fetch candidate details.");
+    }
+  }
+
+
+
+
+
 }

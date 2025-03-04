@@ -8,4 +8,5 @@ export interface ISelectedCandidateRepository {
     deleteSelectedCandidate(candidateId: string): Promise<void>
     updateInterviewDateTimeRepo(selectedCandidateId: string, interviewDate: string, interviewTime: string): Promise<void>
     getScheduledInterviewsByUserId(userId: string): Promise<any[]>
+    getDataForEmail(candidateId: string): Promise<{candidateName: string;jobTitle: string;companyName: string;email: string;}>
   }
