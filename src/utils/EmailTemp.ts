@@ -61,5 +61,25 @@ rejected: (candidateName: string, jobTitle: string, companyName: string) => `
         <p>Best regards,<br/><strong style="color: #FFFFFF;">${companyName} Hiring Team</strong></p>
     </div>
 `,
+interviewScheduled: (
+    candidateName: string,
+    jobTitle: string,
+    companyName: string,
+    interviewDate: string,
+    interviewTime: string
+) => `
+    <div style="font-family: 'Inter', sans-serif; padding: 24px; max-width: 600px; margin: auto; border: 1px solid #E5E7EB; border-radius: 12px; background: #111; color: #E5E7EB;">
+        <h2 style="color: #F3F4F6; text-align: center;">Interview Scheduled</h2>
+        <p>Hello <strong style="color: #FFFFFF;">${candidateName}</strong>,</p>
+        <p>We are excited to inform you that your interview for the <strong style="color: #FFFFFF;">${jobTitle}</strong> position at <strong style="color: #FFFFFF;">${companyName}</strong> has been scheduled.</p>
+        <p><strong style="color: #FFFFFF;">Date:</strong> ${interviewDate}</p>
+        <p><strong style="color: #FFFFFF;">Time:</strong> ${interviewTime}</p>
+        <p>Please be prepared and join the interview on time. Our team will provide further details if necessary.</p>
+        <hr style="border-color: #374151; margin: 20px 0;">
+        <p>If you have any questions or need to reschedule, please reach out.</p>
+        <p>Best regards,<br/><strong style="color: #FFFFFF;">${companyName} Hiring Team</strong></p>
+    </div>
+`
+
 
 };

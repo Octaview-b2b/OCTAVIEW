@@ -71,19 +71,46 @@ export class SelectedCandidateUseCase {
 }
 
 
-  async updateInterviewDateTimeUseCase(
-    selectedCandidateId: string,
-    interviewDate: string,
-    interviewTime: string
-  ): Promise<void> {
-    try {
+async updateInterviewDateTimeUseCase(
+  selectedCandidateId: string,
+  interviewDate: string,
+  interviewTime: string
+): Promise<void> {
+  try {
       console.log('updateInterviewDateTimeUsecase:', selectedCandidateId, interviewDate, interviewTime);
+      
+      // Fetch candidate details for email
+      const emailData = await this.selectedCandidateRepository.getDataForEmail(selectedCandidateId);
+
+      if (!emailData.email) {
+          throw new Error("Candidate email not found.");
+      }
+
+      // Update interview date and time in repository
       await this.selectedCandidateRepository.updateInterviewDateTimeRepo(selectedCandidateId, interviewDate, interviewTime);
-    } catch (error) {
+
+      // Prepare interview schedule email template
+      const emailTemplate = emailTemplates.interviewScheduled(
+          emailData.candidateName,
+          emailData.jobTitle,
+          emailData.companyName,
+          interviewDate,
+          interviewTime
+      );
+
+      // Send interview notification email
+      await this.emailService.sendEmail(
+          emailData.email,
+          `Interview Scheduled for ${emailData.jobTitle} at ${emailData.companyName}`,
+          emailTemplate
+      );
+
+  } catch (error) {
       console.error("Error in updating interview date and time:", error);
       throw new Error("Failed to update interview date and time.");
-    }
   }
+}
+
 
   async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
     try {

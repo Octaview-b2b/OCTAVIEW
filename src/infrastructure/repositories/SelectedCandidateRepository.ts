@@ -122,7 +122,11 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
     }
   }
 
-  async updateInterviewDateTimeRepo(selectedCandidateId: string, interviewDate: string, interviewTime: string): Promise<void> {
+  async updateInterviewDateTimeRepo(
+    selectedCandidateId: string,
+    interviewDate: string,
+    interviewTime: string
+  ): Promise<void> {
     try {
       const updatedCandidate = await SelectedCandidateModel.findByIdAndUpdate(
         selectedCandidateId,
@@ -131,20 +135,34 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
           time: interviewTime,
           status: "scheduled"
         },
-        { new: true }
-      ).exec();
-
-      console.log('updatedCandidate:', updatedCandidate);
-
+        { new: true, runValidators: true }
+      )
+        .populate({
+          path: "candidate",
+          populate: {
+            path: "jobId",
+            populate: { path: "user" }  // ✅ Fixed: Using "user" instead of "companyId"
+          },
+          options: { strictPopulate: false }
+        })
+        .exec();
+  
       if (!updatedCandidate) {
         throw new Error("Selected candidate not found.");
       }
+  
+      console.log("Updated Candidate:", updatedCandidate);
     } catch (error) {
       console.error("Error in updating interview date and time:", error);
+  
       throw new Error("Failed to update interview date and time.");
     }
   }
-
+  
+  
+  
+  
+  
   async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
     try {
       console.log('Fetching scheduled interviews for userId:', userId);
@@ -213,68 +231,74 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
   }
 
 
-  async getDataForEmail(candidateId: string): Promise<{candidateName: string;jobTitle: string;companyName: string;email: string;}> {
+  async getDataForEmail(candidateId: string): Promise<{
+    candidateName: string;
+    jobTitle: string;
+    companyName: string;
+    email: string;
+  }> {
     try {
-      let candidateData: {
+      interface CandidateDataType {
         fullName: string;
         email: string;
         jobId?: {
           job_title?: string;
-          companyId?: { name?: string }
-        }
-      } | null = null;
+          user?: { companyName?: string };
+        };
+      }
+  
+      let candidateData = {} as CandidateDataType;
+  
 
-      // Check if the given ID is a SelectedCandidateId
       const selectedCandidate = await SelectedCandidateModel.findById(candidateId)
-        .populate<{
-          candidate: {
-            fullName: string;
-            email: string;
-            jobId?: { job_title?: string; companyId?: { name?: string } }
-          }
-        }>({
+        .populate({
           path: "candidate",
           select: "fullName email jobId",
           populate: {
             path: "jobId",
-            select: "job_title companyId",
+            select: "job_title user",
             populate: {
-              path: "companyId",
-              select: "name"
-            }
-          }
+              path: "user",
+              select: "companyName", 
+              options: { strictPopulate: false },
+            },
+          },
         })
+        .lean()
         .exec();
-
+  
       if (selectedCandidate?.candidate) {
-        candidateData = selectedCandidate.candidate;
+        candidateData = selectedCandidate.candidate as unknown as typeof candidateData;
       } else {
-        // Otherwise, assume it's a direct candidate ID and fetch candidate details
-        candidateData = await CandidateModel.findById(candidateId)
+        candidateData = (await CandidateModel.findById(candidateId)
           .select("fullName email jobId")
-          .populate<{ jobId: { job_title?: string; companyId?: { name?: string } } }>("jobId", "job_title companyId")
-          .populate<{ companyId: { name?: string } }>("jobId.companyId", "name")
-          .exec();
+          .populate({
+            path: "jobId",
+            select: "job_title user",
+            populate: {
+              path: "user",
+              select: "companyName", 
+              options: { strictPopulate: false },
+            },
+          })
+          .lean()
+          .exec()) as typeof candidateData;
       }
-
+  
       if (!candidateData || !candidateData.email) {
         throw new Error("Candidate email not found.");
       }
-
+  
       return {
         candidateName: candidateData.fullName,
         email: candidateData.email,
         jobTitle: candidateData.jobId?.job_title || "Unknown Job",
-        companyName: candidateData.jobId?.companyId?.name || "Unknown Company"
+        companyName: candidateData.jobId?.user?.companyName ?? "Company Name Not Available", 
       };
     } catch (error) {
       console.error("Error fetching candidate details:", error);
       throw new Error("Failed to fetch candidate details.");
     }
   }
-
-
-
-
-
+  
 }
