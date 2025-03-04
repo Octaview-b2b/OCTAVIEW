@@ -4,8 +4,6 @@ import { JWT_SECRET } from '../../config/env';
 
 export const authenticateUser = (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
-console.log('hi on middle',authHeader);
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({ message: 'Unauthorized' });
         return; 

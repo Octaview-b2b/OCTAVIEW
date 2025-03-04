@@ -26,4 +26,14 @@ export class SettingsRepository implements ISettings {
         const user = await UserModel.findOne({ _id: userId, apiToken: apiKey });
         return !!user;
     }
+    
+    async updateTokens(userId: string, tokens: number): Promise<void> {
+        const user = await UserModel.findById(userId);
+        if (user) {
+            user.token = (user.token || 0) + tokens;
+            await user.save();
+        } else {
+            throw new Error("User not found");
+        }
+    }
 }

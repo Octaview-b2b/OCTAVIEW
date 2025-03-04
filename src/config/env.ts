@@ -11,3 +11,7 @@ export const AWS_REGION=process.env.AWS_REGION
 export const AWS_BUCKET_NAME=process.env.AWS_BUCKET_NAME
 
 export const JUDGE0_BASE_URL = process.env.JUDGE0_BASE_URL
+
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
+
+export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
