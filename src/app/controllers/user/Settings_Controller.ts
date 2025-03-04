@@ -56,18 +56,17 @@ export class Settings_Controller {
   confirmPayment = async (req: Request, res: Response): Promise<void> =>{
         try {
             const { paymentId, userId } = req.body;
-            console.log("📌 Received:", { paymentId, userId });
+            console.log(" Received:", { paymentId, userId });
     
             if (!paymentId || !userId) {
-                console.error("❌ Missing paymentId or userId");
+                console.error(" Missing paymentId,userId");
                 res.status(400).json({ error: "Payment ID and User ID are required." });
                 return;
             }
     
             await this.settingsUseCase.confirmPayment(paymentId, userId);
-            res.status(200).json({ message: "✅ Payment confirmed and tokens updated successfully." });
+            res.status(200).json({ message: " Payment confirmed and tokens updated successfully." });
         } catch (error) {
-            console.error("❌ Error in payment confirmation:", error);
             res.status(500).json({ error: error instanceof Error ? error.message : "Internal server error" });
         }
     }

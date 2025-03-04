@@ -16,7 +16,7 @@ export class SettingsUseCase {
 
     }
     async getSettingsData(userId: string): Promise<any> {
-        return await this.settingsRepositery.getSettingsData(userId); // Ensure you're returning the data from the repository
+        return await this.settingsRepositery.getSettingsData(userId); 
     }
 
 
@@ -46,57 +46,47 @@ export class SettingsUseCase {
                         quantity: 1,
                     },
                 ],
-                success_url: `http://localhost:5173/dash/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+                success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `http://localhost:5173/dash/settings`,
-                metadata: { userId, tokens: tokens.toString() }, // ✅ Ensuring metadata is added
+                metadata: { userId, tokens: tokens.toString() }, 
             });
     
             if (!session.id || !session.url) {
                 throw new Error("Failed to create checkout session.");
             }
     
-            console.log("✅ Checkout session created:", session.id);
             return { sessionId: session.id, checkoutUrl: session.url };
         } catch (error) {
-            console.error("❌ Error creating checkout session:", error);
             throw new Error("Could not create checkout session. Please try again.");
         }
     }
     
     async confirmPayment(paymentId: string, userId: string): Promise<void> {
         try {
-            console.log("🔍 Retrieving checkout session for:", paymentId);
     
             // Retrieve the Stripe session
             const session = await stripe.checkout.sessions.retrieve(paymentId);
     
             if (!session) {
-                throw new Error("❌ No checkout session found.");
+                throw new Error(" No checkout session found.");
             }
     
-            console.log("📄 Stripe Checkout Session:", session);
-    
-            // Check if payment is successful
             if (session.payment_status !== "paid") {
-                throw new Error(`❌ Payment status is not successful: ${session.payment_status}`);
+                throw new Error(` Payment status is not successful: ${session.payment_status}`);
             }
     
-            // Ensure metadata is present
             if (!session.metadata) {
-                throw new Error("❌ Missing metadata in checkout session.");
+                throw new Error(" Missing metadata in checkout session.");
             }
     
             const tokens = Number(session.metadata.tokens);
             if (isNaN(tokens) || tokens <= 0) {
-                throw new Error("❌ Invalid token amount in payment metadata.");
+                throw new Error(" Invalid token amount in payment metadata.");
             }
     
-            console.log(`✅ Payment successful! Adding ${tokens} tokens to user ${userId}`);
-    
-            // Update user's token balance
+            console.log(` Payment successful! Adding ${tokens} tokens to user ${userId}`);
             await this.settingsRepositery.updateTokens(userId, tokens);
         } catch (error) {
-            console.error("❌ Error confirming payment:", error);
             throw new Error(error instanceof Error ? error.message : "Failed to confirm payment.");
         }
     }
