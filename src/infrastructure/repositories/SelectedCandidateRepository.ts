@@ -9,22 +9,26 @@ import mongoose from "mongoose";
 export class SelectedCandidateRepository implements ISelectedCandidateRepository {
   async save(selectedCandidate: SelectedCandidateEntity): Promise<void> {
     try {
-      const newSelectedCandidate = new SelectedCandidateModel({
-        candidate: selectedCandidate.candidate,
-        job: selectedCandidate.job,
-        time: selectedCandidate.time,
-        date: selectedCandidate.date,
-        report: selectedCandidate.report,
-        status: selectedCandidate.status,
-      });
+        console.log("Saving candidate with status:", selectedCandidate.status); // Debugging log
 
-      await newSelectedCandidate.save();
+        const newSelectedCandidate = new SelectedCandidateModel({
+            candidate: selectedCandidate.candidate,
+            job: selectedCandidate.job,
+            time: selectedCandidate.time,
+            date: selectedCandidate.date,
+            report: selectedCandidate.report,
+            status: selectedCandidate.status,
+        });
+
+        await newSelectedCandidate.save();
+        console.log("Candidate saved successfully");
 
     } catch (error) {
-      console.error("Error saving selected candidate:", error);
-      throw new Error("Failed to save selected candidate.");
+        console.error("Error saving selected candidate:", error);
+        throw new Error("Failed to save selected candidate.");
     }
-  }
+}
+
 async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> {
     try {
       const existingSelection = await SelectedCandidateModel.findOne({ 
@@ -49,7 +53,7 @@ async isCandidateSelected(candidateId: string, jobId: string): Promise<boolean> 
         { 
           $match: { 
             job: new mongoose.Types.ObjectId(jobId), // Match by jobId
-            status: "onhold"  // Only "onhold" candidates
+            status: "shortlisted"  // Only "onhold" candidates
           } 
         },
         {

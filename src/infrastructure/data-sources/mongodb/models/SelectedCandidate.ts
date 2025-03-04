@@ -7,7 +7,7 @@ export interface ISelectedCandidate extends Document {
     date: string ;
     time: string;
     report: string;
-    status: "scheduled"|"hired" | "rejected" | "onhold";
+    status: "scheduled"|"hired" | "rejected" | "shortlisted"|"";
 }
 
 const selectedCandidateSchema: Schema = new Schema(
@@ -19,7 +19,7 @@ const selectedCandidateSchema: Schema = new Schema(
         report: { type: String },
         status: { 
             type: String, 
-            enum: ["scheduled","hired", "rejected", "onhold"], 
+            enum: ["scheduled","hired", "rejected", "shortlisted",""], 
         },
     },
     { timestamps: true }

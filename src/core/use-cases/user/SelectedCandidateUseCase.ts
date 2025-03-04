@@ -2,27 +2,28 @@ import { ISelectedCandidateRepository } from "../../../core/interfaces/user/ISel
 import { SelectedCandidateEntity } from "../../entities/selectedCandidateEntity";
 
 export class SelectedCandidateUseCase {
-  constructor(private selectedCandidateRepository: ISelectedCandidateRepository) {}
-
+  constructor(private selectedCandidateRepository: ISelectedCandidateRepository) { }
   async selectCandidate(
-candidateId: string, jobId: string, report: string = "", status: "hired" | "rejected" | "onhold" = "onhold", p0: any  ): Promise<void> {
+candidateId: string, jobId: string, report: string = "", status: "scheduled" | "hired" | "rejected" | "shortlisted" | "", p0: any): Promise<void> {
     const isAlreadySelected = await this.selectedCandidateRepository.isCandidateSelected(candidateId, jobId);
 
     if (isAlreadySelected) {
-      throw new Error("Candidate is already selected for this job.");
+        throw new Error("Candidate is already selected for this job.");
     }
 
     const selectedCandidate = SelectedCandidateEntity.create(
-      candidateId,
-      jobId,
-      "",
-      '',
-      report,
-      status
+        candidateId,
+        jobId,
+        "",
+        "",
+        report,
+        "shortlisted"
     );
+
     await this.selectedCandidateRepository.save(selectedCandidate);
     await this.selectedCandidateRepository.updateSelectionStatus(candidateId);
-  }
+}
+
 
   async getSelectedCandidates(jobId: string): Promise<SelectedCandidateEntity[]> {
     return await this.selectedCandidateRepository.getByJobId(jobId);
@@ -30,34 +31,34 @@ candidateId: string, jobId: string, report: string = "", status: "hired" | "reje
 
   async deleteSelectedCandidate(candidateId: string): Promise<void> {
     try {
-        await this.selectedCandidateRepository.deleteSelectedCandidate(candidateId);
-      } catch (error) {
-        console.error("Error rejecting candidate:", error);
-        throw new Error("Failed to reject candidate.");
-      }
+      await this.selectedCandidateRepository.deleteSelectedCandidate(candidateId);
+    } catch (error) {
+      console.error("Error rejecting candidate:", error);
+      throw new Error("Failed to reject candidate.");
     }
+  }
 
-    async updateInterviewDateTimeUseCase(
-      selectedCandidateId: string,
-      interviewDate: string,
-      interviewTime: string
-    ): Promise<void> {
-      try {
-        console.log('updateInterviewDateTimeUsecase:', selectedCandidateId, interviewDate, interviewTime);
-        await this.selectedCandidateRepository.updateInterviewDateTimeRepo(selectedCandidateId, interviewDate, interviewTime);
-      } catch (error) {
-        console.error("Error in updating interview date and time:", error);
-        throw new Error("Failed to update interview date and time.");
-      }
+  async updateInterviewDateTimeUseCase(
+    selectedCandidateId: string,
+    interviewDate: string,
+    interviewTime: string
+  ): Promise<void> {
+    try {
+      console.log('updateInterviewDateTimeUsecase:', selectedCandidateId, interviewDate, interviewTime);
+      await this.selectedCandidateRepository.updateInterviewDateTimeRepo(selectedCandidateId, interviewDate, interviewTime);
+    } catch (error) {
+      console.error("Error in updating interview date and time:", error);
+      throw new Error("Failed to update interview date and time.");
     }
+  }
 
-    async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
-      try {
-        const scheduledInterviews = await this.selectedCandidateRepository.getScheduledInterviewsByUserId(userId);
-        return scheduledInterviews;
-      } catch (error) {
-        console.error("Error in getting scheduled interviews:", error);
-        throw new Error("Failed to fetch scheduled interviews.");
-      }
+  async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
+    try {
+      const scheduledInterviews = await this.selectedCandidateRepository.getScheduledInterviewsByUserId(userId);
+      return scheduledInterviews;
+    } catch (error) {
+      console.error("Error in getting scheduled interviews:", error);
+      throw new Error("Failed to fetch scheduled interviews.");
     }
+  }
 }
