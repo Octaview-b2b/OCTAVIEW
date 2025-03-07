@@ -1,8 +1,8 @@
-import express, { Request, Response, NextFunction } from "express";
-import router from "./routers/index";
-import { connectDb } from "../infrastructure/data-sources/mongodb/mongodb-contact-data-source";
+import express, { Request, Response } from "express";
+import router from "./app/routers/index";
+import { connectDb } from "./infrastructure/data-sources/mongodb/mongodb-contact-data-source";
 import dotenv from "dotenv";
-import { initWebSocketServer } from "../infrastructure/websocket/signaling";
+import { initWebSocketServer } from "./infrastructure/websocket/signaling";
 import http from "http";
 import cors from "cors";
 
@@ -23,7 +23,7 @@ app.use(cors({
 app.use(express.json());
 app.use("/api", router);
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: any, _req: Request, res: Response) => {
   console.error(err.stack);
   res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
 });

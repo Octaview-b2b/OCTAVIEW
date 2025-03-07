@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { SelectedCandidateUseCase } from "../../../core/use-cases/user/SelectedCandidateUseCase";
-import { log } from "console";
+
 
 export class SelectedCandidateController {
     constructor(private selectedCandidateUseCase: SelectedCandidateUseCase) {}

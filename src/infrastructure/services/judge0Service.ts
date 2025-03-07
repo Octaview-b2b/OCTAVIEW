@@ -1,7 +1,7 @@
 import axios from "axios";
 import { JUDGE0_BASE_URL } from "../../config/env";
 
-let url = 'http://localhost:2358'
+// let url = 'http://localhost:2358'
 
 
 export class Judge0Service {

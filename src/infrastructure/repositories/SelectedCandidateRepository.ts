@@ -3,7 +3,6 @@ import SelectedCandidateModel from "../data-sources/mongodb/models/SelectedCandi
 import CandidateModel, { ICandidateModal } from "../data-sources/mongodb/models/Candidate";
 import { SelectedCandidateEntity } from "../../core/entities/selectedCandidateEntity";
 import { UserModel } from "../data-sources/mongodb/models/User";
-import { time } from "console";
 import mongoose from "mongoose";
 
 export class SelectedCandidateRepository implements ISelectedCandidateRepository {

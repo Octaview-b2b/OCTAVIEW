@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only --watch src src/app/app.ts",
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only ./app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

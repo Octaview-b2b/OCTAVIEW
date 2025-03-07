@@ -5,43 +5,43 @@ import { emailTemplates } from "../../../utils/EmailTemp";
 
 export class SelectedCandidateUseCase {
   constructor(private selectedCandidateRepository: ISelectedCandidateRepository, private emailService:EmailService ) { }
+
+  
   async selectCandidate(
-    candidateId: string, 
-    jobId: string, 
-    report: string = "", 
-    status: "scheduled" | "hired" | "rejected" | "shortlisted"|""
-): Promise<void> {
-    const isAlreadySelected = await this.selectedCandidateRepository.isCandidateSelected(candidateId, jobId);
-
-    if (isAlreadySelected) {
-        throw new Error("Candidate is already selected for this job.");
-    }
-    const { candidateName, jobTitle, companyName,email } = await this.selectedCandidateRepository.getDataForEmail(candidateId);
-
-    const selectedCandidate = SelectedCandidateEntity.create(
-        candidateId,
-        jobId,
-        "",
-        "",
-        report,
-        "shortlisted"
-    );
-
-    await this.selectedCandidateRepository.save(selectedCandidate);
-    await this.selectedCandidateRepository.updateSelectionStatus(candidateId);
-
-    //  email content
-    const emailSubject = `Congratulations! You have been shortlisted for ${jobTitle}`;
-    const emailBody = emailTemplates.shortlisted(candidateName, jobTitle, companyName);
-
-    await this.emailService.sendEmail(
-        email,
-        emailSubject,
-        emailBody
-    );
-}
-
-
+    candidateId: string,
+    jobId: string,
+    report: string = "",
+    status?: string,
+    meetUrl?: string
+  ): Promise<void> {
+      const isAlreadySelected = await this.selectedCandidateRepository.isCandidateSelected(candidateId, jobId);
+  
+      if (isAlreadySelected) {
+          throw new Error("Candidate is already selected for this job.");
+      }
+  
+      const { candidateName, jobTitle, companyName, email } = 
+        await this.selectedCandidateRepository.getDataForEmail(candidateId);
+  
+      const selectedCandidate = SelectedCandidateEntity.create(
+          candidateId,
+          jobId,
+          meetUrl || "", // Default empty if undefined
+          status || "", // Default empty if undefined
+          report,
+          "shortlisted"
+      );
+  
+      await this.selectedCandidateRepository.save(selectedCandidate);
+      await this.selectedCandidateRepository.updateSelectionStatus(candidateId);
+  
+      // Email content
+      const emailSubject = `Congratulations! You have been shortlisted for ${jobTitle}`;
+      const emailBody = emailTemplates.shortlisted(candidateName, jobTitle, companyName);
+  
+      await this.emailService.sendEmail(email, emailSubject, emailBody);
+  }
+  
   async getSelectedCandidates(jobId: string): Promise<SelectedCandidateEntity[]> {
     return await this.selectedCandidateRepository.getByJobId(jobId);
   }

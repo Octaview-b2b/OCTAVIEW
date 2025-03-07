@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_router_1 = __importDefault(require("./user/auth_router"));
+const jobs_router_1 = __importDefault(require("./user/jobs_router"));
+const candidate_router_1 = require("./user/candidate_router");
+const selectedCandidate_router_1 = require("./user/selectedCandidate_router");
+const AuthMIddleware_1 = require("../middlewares/AuthMIddleware");
+const settings_router_1 = require("./user/settings_router");
+const meet_router_1 = __importDefault(require("./user/meet_router"));
+const router = (0, express_1.Router)();
+router.use('/user', auth_router_1.default);
+router.use('/jobs', jobs_router_1.default);
+router.use('/candidate', candidate_router_1.candidateRouter);
+router.use('/jobs/ext/apply', candidate_router_1.candidateExtRouter);
+router.use('/selected', AuthMIddleware_1.authenticateUser, selectedCandidate_router_1.selectedCandidateRoutes);
+router.use('/settings', settings_router_1.settingsRouter);
+router.use('/meet', meet_router_1.default);
+exports.default = router;

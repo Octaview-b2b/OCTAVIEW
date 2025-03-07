@@ -1,4 +1,3 @@
-import { promises } from "dns";
 import { UserEntity,OtpEntity } from "../../entities/userEntity";
 
 export interface IuserRepository{

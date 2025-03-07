@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.settingsRouter = void 0;
+const express_1 = require("express");
+const Settings_Controller_1 = require("../../controllers/user/Settings_Controller");
+const SettingsUseCase_1 = require("../../../core/use-cases/user/SettingsUseCase");
+const SettingsRepositery_1 = require("../../../infrastructure/repositories/SettingsRepositery");
+const AuthMIddleware_1 = require("../../middlewares/AuthMIddleware");
+const settingsRepository = new SettingsRepositery_1.SettingsRepository();
+const settingsUseCase = new SettingsUseCase_1.SettingsUseCase(settingsRepository);
+const settingsController = new Settings_Controller_1.Settings_Controller(settingsUseCase);
+const settingsRouter = (0, express_1.Router)();
+exports.settingsRouter = settingsRouter;
+settingsRouter.get('/:userId', AuthMIddleware_1.authenticateUser, settingsController.getSettingsData);
+settingsRouter.post("/generate-api-key/:userId", AuthMIddleware_1.authenticateUser, settingsController.generateApiKey);
+settingsRouter.post("/purchase-tokens/:userId", AuthMIddleware_1.authenticateUser, settingsController.createCheckoutSession);
+settingsRouter.post("/success", AuthMIddleware_1.authenticateUser, settingsController.confirmPayment);

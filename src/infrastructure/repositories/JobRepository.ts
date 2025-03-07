@@ -1,4 +1,3 @@
-import { log } from "console";
 import { JobEntity } from "../../core/entities/jobEntity";
 import { IjobRepository } from "../../core/interfaces/user/IJobRepository";
 import { JobModel } from "../data-sources/mongodb/models/Jobs";

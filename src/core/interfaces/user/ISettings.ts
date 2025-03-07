@@ -1,4 +1,3 @@
-import { UserModel } from "../../../infrastructure/data-sources/mongodb/models/User";
 
 export interface ISettings {
     updateTokens(userId: any, tokens: number): unknown;
