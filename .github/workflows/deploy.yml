@@ -1,0 +1,52 @@
+name: 🚀 Deploy to EC2 OCTAVIEW SERVER
+
+on:
+  push:
+    branches:
+      - master  # Change if using a different branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔑 Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 📂 Deploy and Restart Services
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e  # Exit if any command fails
+            
+            echo "⚡ Pulling latest code from GitHub..."
+            cd /home/ubuntu/OCTAVIEW || { echo "❌ Folder not found! Exiting..."; exit 1; }
+            git reset --hard
+            git pull origin master
+
+            echo "📦 Installing dependencies..."
+            npm install --frozen-lockfile
+
+            echo "🔨 Building the project..."
+            npm run build
+            
+            echo "🛑 Stopping and removing old containers..."
+            docker-compose down
+
+            echo "🧹 Removing unused Docker resources..."
+            docker system prune -af  # Frees up space
+
+            echo "🔄 Building and restarting containers..."
+            docker-compose up --build -d
+            
+            echo "🌐 Restarting Nginx..."
+            sudo systemctl restart nginx
+            
+            echo "✅ Deployment complete!"
+          EOF
