@@ -23,10 +23,11 @@ app.use(cors({
 app.use(express.json());
 app.use("/api", router);
 
-app.use((err: any, _req: Request, res: Response) => {
+app.use((err: any, _req: Request, res: Response, _next: any) => {
   console.error(err.stack);
   res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
 });
+
 
 (async () => {
   try {
