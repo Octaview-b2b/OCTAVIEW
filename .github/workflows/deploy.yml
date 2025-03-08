@@ -3,7 +3,7 @@ name: 🚀 Deploy to EC2 OCTAVIEW SERVER
 on:
   push:
     branches:
-      - master  # Change if using a different branch
+      - master  # Change this to deploy a different branch
 
 jobs:
   deploy:
@@ -18,17 +18,21 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: 📂 Deploy and Restart Services
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             set -e  # Exit if any command fails
-            
+
             echo "⚡ Pulling latest code from GitHub..."
-            cd /home/ubuntu/OCTAVIEW || { echo "❌ Folder not found! Exiting..."; exit 1; }
-            git reset --hard
-            git pull origin master
+            cd /home/ubuntu/OCTAVIEW || { echo "❌ Error: Folder not found! Exiting..."; exit 1; }
+            git fetch origin
+            git checkout ${{ secrets.GIT_BRANCH || 'master' }}
+            git reset --hard origin/${{ secrets.GIT_BRANCH || 'master' }}
+            git pull origin ${{ secrets.GIT_BRANCH || 'master' }}
 
             echo "📦 Installing dependencies..."
             npm install --frozen-lockfile
@@ -37,13 +41,13 @@ jobs:
             npm run build
             
             echo "🛑 Stopping and removing old containers..."
-            docker-compose down
+            docker compose down
 
             echo "🧹 Removing unused Docker resources..."
             docker system prune -af  # Frees up space
 
             echo "🔄 Building and restarting containers..."
-            docker-compose up --build -d
+            docker compose up --build -d
             
             echo "🌐 Restarting Nginx..."
             sudo systemctl restart nginx
