@@ -13,27 +13,13 @@ jobs:
       - name: 🚀 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🔑 Set up SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
-
-          touch ~/.ssh/known_hosts
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      - name: 🔍 Test SSH Connection
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo '✅ SSH connection successful'"
-
-      - name: 📂 Deploy and Restart Services
-        env:
-          GIT_BRANCH: master  # Define the branch to deploy
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+      - name: 🔑 Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
             set -e  # Exit immediately if a command fails
 
             echo "✅ Connected to EC2"
@@ -59,9 +45,9 @@ jobs:
             echo "⚡ Pulling latest code from GitHub..."
             git remote set-url origin git@github.com:MammenMathew/octaview.git  # Change to your repo
             git fetch origin
-            git checkout "${{ env.GIT_BRANCH }}"
-            git reset --hard origin/"${{ env.GIT_BRANCH }}"
-            git pull origin "${{ env.GIT_BRANCH }}"
+            git checkout master
+            git reset --hard origin/master
+            git pull origin master
 
             echo "📦 Installing dependencies..."
             npm install --frozen-lockfile
@@ -82,4 +68,3 @@ jobs:
             sudo systemctl restart nginx
 
             echo "✅ Deployment complete!"
-          EOF
