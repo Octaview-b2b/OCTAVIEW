@@ -9,11 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
+
     steps:
       - name: 🚀 Checkout code
         uses: actions/checkout@v3
-       
+
       - name: 🔑 Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -23,9 +23,8 @@ jobs:
           port: 22
           script: |
             set -e  # Exit immediately if a command fails
-            
             echo "✅ Connected to EC2"
-            
+
             # Ensure deployment directory exists
             if [ ! -d "/home/ubuntu/OCTAVIEW" ]; then
               mkdir -p /home/ubuntu/OCTAVIEW
@@ -40,25 +39,26 @@ jobs:
               git remote set-url origin https://github.com/Octaview-b2b/OCTAVIEW.git
             fi
             git fetch --all
+            git reset --hard origin/master
             git checkout -f master
             git pull origin master
-            
+
             # Ensure Node.js and npm are installed
             echo "📦 Checking Node.js and npm..."
-            if ! command -v npm &> /dev/null; then
+            if ! command -v node &> /dev/null; then
               curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
               sudo apt-get install -y nodejs
             fi
             echo "✅ Node.js $(node -v) and npm $(npm -v) installed!"
 
-            # Install project dependencies
+            # Install dependencies only if package.json changes
             echo "📦 Installing dependencies..."
-            npm install --no-fund --no-audit
-            
+            npm ci --no-fund --no-audit
+
             # Build project
             echo "🔨 Building the project..."
             npm run build
-            
+
             # Ensure Docker is installed
             echo "🐳 Checking Docker..."
             if ! command -v docker &> /dev/null; then
@@ -69,27 +69,27 @@ jobs:
 
             # Ensure Docker Compose is installed
             echo "🛠️ Checking Docker Compose..."
-            if ! docker compose version &> /dev/null; then
+            if ! command -v docker-compose &> /dev/null; then
               echo "🔧 Installing Docker Compose..."
-              sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.7/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
             fi
-            echo "✅ Docker $(docker -v) and Docker Compose $(docker compose version) installed!"
+            echo "✅ Docker $(docker -v) and Docker Compose $(docker-compose -v) installed!"
 
             # Stop and remove old containers
             echo "🛑 Stopping and removing old containers..."
-            docker compose down || echo "⚠️ No running containers found."
+            docker compose down || true
 
-            # Remove unused Docker resources
+            # Clean up unused Docker resources
             echo "🧹 Cleaning up Docker..."
-            docker system prune -af --volumes || echo "⚠️ Cleanup skipped."
+            docker system prune -af || true
 
-            # Build and restart containers
+            # Ensure correct Docker image name
+            IMAGE_NAME="octaview-server"
+            CONTAINER_NAME="octaview-server"
+
+            # Build and start containers
             echo "🔄 Building and restarting containers..."
-            docker compose up --force-recreate --build -d || (echo "❌ Failed to start containers." && exit 1)
+            docker compose up --build -d
 
-            # Restart Nginx
-            echo "🌐 Restarting Nginx..."
-            sudo systemctl restart nginx || echo "⚠️ Failed to restart Nginx."
-
-            echo "✅ Deployment complete!"
+            echo "🚀 Deployment successful!"
