@@ -85,4 +85,4 @@ jobs:
               echo "⚠️ Failed to restart Nginx. Ignoring error..."
             fi
             
-            echo "✅ Deployment complete!"
+            echo "✅ Deployment complete!" 
