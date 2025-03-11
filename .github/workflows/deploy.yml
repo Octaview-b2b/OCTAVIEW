@@ -9,11 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30  # Add timeout to prevent workflow from running too long
-
+    
     steps:
       - name: 🚀 Checkout code
         uses: actions/checkout@v3
-
+       
       - name: 🔑 Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -47,6 +47,16 @@ jobs:
             git fetch --all
             git checkout -f master
             git pull origin master
+            
+            echo "📦 Installing Node.js and npm..."
+            if ! command -v npm &> /dev/null; then
+              echo "Node.js not found, installing..."
+              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+              echo "Node.js $(node -v) and npm $(npm -v) installed!"
+            else
+              echo "Node.js $(node -v) and npm $(npm -v) already installed!"
+            fi
             
             echo "📦 Installing dependencies..."
             npm install --no-fund --no-audit
