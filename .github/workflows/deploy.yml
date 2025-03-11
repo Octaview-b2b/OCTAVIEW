@@ -16,7 +16,7 @@ jobs:
       - name: 🔑 Set up SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa || { echo "Base64 decoding of SSH key failed"; exit 1; }
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
