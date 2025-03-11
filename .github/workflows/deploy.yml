@@ -3,86 +3,59 @@ name: 🚀 Deploy to EC2 OCTAVIEW SERVER
 on:
   push:
     branches:
-      - master  # Change this to deploy a different branch
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Add timeout to prevent workflow from running too long
-    
+
     steps:
-      - name: 🚀 Checkout code
-        uses: actions/checkout@v3
-       
-      - name: 🔑 Deploy to EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}  # Make sure this is your Elastic IP
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          port: 22
-          command_timeout: 20m
-          script: |
-            set -e  # Exit immediately if a command fails
-            
-            echo "✅ Connected to EC2"
-            echo "⚡ Checking the deployment directory..."
-            if [ ! -d "/home/ubuntu/OCTAVIEW" ]; then
-              echo "❌ Directory not found! Creating it..."
-              mkdir -p /home/ubuntu/OCTAVIEW
-            fi
-            
-            cd /home/ubuntu/OCTAVIEW
-            echo "📁 Current directory: $(pwd)"
-            
-            echo "⚡ Pulling latest code from GitHub..."
-            if [ ! -d ".git" ]; then
-              echo "🔄 Initializing git repository..."
-              git init
-              git remote add origin https://github.com/Octaview-b2b/OCTAVIEW.git  # Change to your repo
-            else
-              git remote set-url origin https://github.com/Octaview-b2b/OCTAVIEW.git  # Change to your repo
-            fi
-            
-            git fetch --all
-            git checkout -f master
-            git pull origin master
-            
-            echo "📦 Installing Node.js and npm..."
-            if ! command -v npm &> /dev/null; then
-              echo "Node.js not found, installing..."
-              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-              echo "Node.js $(node -v) and npm $(npm -v) installed!"
-            else
-              echo "Node.js $(node -v) and npm $(npm -v) already installed!"
-            fi
-            
-            echo "📦 Installing dependencies..."
-            npm install --no-fund --no-audit
-            
-            echo "🔨 Building the project..."
-            npm run build
-            
-            echo "🛑 Stopping and removing old containers..."
-            if ! docker compose down; then
-              echo "⚠️ Failed to stop containers. Ignoring error..."
-            fi
-            
-            echo "🧹 Removing unused Docker resources..."
-            if ! docker system prune -af --volumes; then
-              echo "⚠️ Failed to prune Docker resources. Ignoring error..."
-            fi
-            
-            echo "🔄 Building and restarting containers..."
-            if ! docker compose up --build -d; then
-              echo "❌ Failed to build and start containers. Exiting..."
-              exit 1
-            fi
-            
-            echo "🌐 Restarting Nginx..."
-            if ! sudo systemctl restart nginx; then
-              echo "⚠️ Failed to restart Nginx. Ignoring error..."
-            fi
-            
-            echo "✅ Deployment complete!" 
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose-plugin
+
+    - name: Deploy to EC2
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+      run: |
+        set -e  # Exit immediately if a command fails
+        echo "✅ Connected to EC2"
+        echo "⚡ Checking the deployment directory..."
+        echo "🔨 Building the project..."
+        npm run build
+        echo "🛑 Stopping and removing old containers..."
+        if ! docker compose down; then
+          echo "⚠️ Failed to stop containers. Ignoring error..."
+        fi
+        echo "🧹 Removing unused Docker resources..."
+        if ! docker system prune -af --volumes; then
+          echo "⚠️ Failed to prune Docker resources. Ignoring error..."
+        fi
+        echo "🔄 Building and restarting containers..."
+        if ! docker compose up --build -d; then
+          echo "❌ Failed to build and start containers. Exiting..."
+          exit 1
+        fi
+        echo "🌐 Restarting Nginx..."
+        if ! sudo systemctl restart nginx; then
+          echo "⚠️ Failed to restart Nginx. Ignoring error..."
+        fi
+        echo "✅ Deployment complete!"
