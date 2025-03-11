@@ -16,13 +16,15 @@ jobs:
       - name: 🔑 Set up SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: 📂 Deploy and Restart Services
+        env:
+          GIT_BRANCH: master  # Define the branch to deploy
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             set -e  # Exit if any command fails
@@ -30,9 +32,9 @@ jobs:
             echo "⚡ Pulling latest code from GitHub..."
             cd /home/ubuntu/OCTAVIEW || { echo "❌ Error: Folder not found! Exiting..."; exit 1; }
             git fetch origin
-            git checkout ${{ secrets.GIT_BRANCH || 'master' }}
-            git reset --hard origin/${{ secrets.GIT_BRANCH || 'master' }}
-            git pull origin ${{ secrets.GIT_BRANCH || 'master' }}
+            git checkout $GIT_BRANCH
+            git reset --hard origin/$GIT_BRANCH
+            git pull origin $GIT_BRANCH
 
             echo "📦 Installing dependencies..."
             npm install --frozen-lockfile

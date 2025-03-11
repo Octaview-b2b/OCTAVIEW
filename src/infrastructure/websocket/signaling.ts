@@ -4,7 +4,7 @@ import http from "http";
 export const initWebSocketServer = (server: http.Server) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "https://octaview.tech",
       methods: ["GET", "POST"],
     },
     transports: ["websocket"]
