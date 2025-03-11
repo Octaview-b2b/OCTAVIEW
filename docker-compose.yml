@@ -2,10 +2,11 @@ version: '3.8'
 
 services:
   octaview-server:
-    image: octaview-server
+    build: .  # Builds the image from Dockerfile
+    image: mammenmathewz/octaview  # Replace with your Docker Hub username
     container_name: octaview-server
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Matches internal app port
     env_file:
       - .env
     restart: always

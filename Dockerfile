@@ -7,10 +7,10 @@ WORKDIR /app
 # Copy package.json and package-lock.json first (for better caching)
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies) to compile TypeScript
+# Install dependencies
 RUN npm install
 
-# Copy the entire project (except files in .dockerignore)
+# Copy the entire project
 COPY . .
 
 # Build TypeScript files
@@ -19,8 +19,8 @@ RUN npm run build
 # Remove devDependencies to keep the image lightweight
 RUN npm prune --omit=dev
 
-# Expose the port your Express app runs on
-EXPOSE 4000
+# Expose the correct port
+EXPOSE 5000
 
 # Start the application
 CMD ["node", "dist/app.js"]

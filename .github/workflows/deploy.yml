@@ -14,6 +14,20 @@ jobs:
       - name: 🚀 Checkout code
         uses: actions/checkout@v3
 
+      - name: 🔨 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: 📦 Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/octaview:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/octaview:latest
+
       - name: 🔑 Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -24,40 +38,6 @@ jobs:
           script: |
             set -e  # Exit immediately if a command fails
             echo "✅ Connected to EC2"
-
-            # Ensure deployment directory exists
-            if [ ! -d "/home/ubuntu/OCTAVIEW" ]; then
-              mkdir -p /home/ubuntu/OCTAVIEW
-            fi
-            cd /home/ubuntu/OCTAVIEW
-
-            echo "⚡ Pulling latest code from GitHub..."
-            if [ ! -d ".git" ]; then
-              git init
-              git remote add origin https://github.com/Octaview-b2b/OCTAVIEW.git
-            else
-              git remote set-url origin https://github.com/Octaview-b2b/OCTAVIEW.git
-            fi
-            git fetch --all
-            git reset --hard origin/master
-            git checkout -f master
-            git pull origin master
-
-            # Ensure Node.js and npm are installed
-            echo "📦 Checking Node.js and npm..."
-            if ! command -v node &> /dev/null; then
-              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-            fi
-            echo "✅ Node.js $(node -v) and npm $(npm -v) installed!"
-
-            # Install dependencies only if package.json changes
-            echo "📦 Installing dependencies..."
-            npm ci --no-fund --no-audit
-
-            # Build project
-            echo "🔨 Building the project..."
-            npm run build
 
             # Ensure Docker is installed
             echo "🐳 Checking Docker..."
@@ -76,6 +56,10 @@ jobs:
             fi
             echo "✅ Docker $(docker -v) and Docker Compose $(docker-compose -v) installed!"
 
+            # Pull the latest Docker image from Docker Hub
+            echo "📦 Pulling latest Docker image..."
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/octaview:latest
+
             # Stop and remove old containers
             echo "🛑 Stopping and removing old containers..."
             docker compose down || true
@@ -84,12 +68,8 @@ jobs:
             echo "🧹 Cleaning up Docker..."
             docker system prune -af || true
 
-            # Ensure correct Docker image name
-            IMAGE_NAME="octaview-server"
-            CONTAINER_NAME="octaview-server"
-
-            # Build and start containers
-            echo "🔄 Building and restarting containers..."
-            docker compose up --build -d
+            # Run the latest container
+            echo "🔄 Starting new container..."
+            docker run -d --name octaview-server -p 5000:5000 --env-file .env --restart always ${{ secrets.DOCKER_HUB_USERNAME }}/octaview:latest
 
             echo "🚀 Deployment successful!"
