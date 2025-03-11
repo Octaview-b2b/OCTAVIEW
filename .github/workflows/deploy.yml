@@ -14,20 +14,6 @@ jobs:
       - name: 🚀 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🔨 Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: 🔑 Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: 📦 Build and Push Docker Image
-        run: |
-          docker build -t mammenmathewz/octaview:latest .
-          docker push mammenmathewz/octaview:latest
-
       - name: 🔑 Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -47,30 +33,26 @@ jobs:
               sudo usermod -aG docker ubuntu
             fi
 
-            # Ensure Docker Compose is installed
-            echo "🛠️ Checking Docker Compose..."
-            if ! command -v docker-compose &> /dev/null; then
-              echo "🔧 Installing Docker Compose..."
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
+            # Pull latest code from GitHub
+            echo "📂 Pulling latest code..."
+            cd ~/OCTAVIEW || git clone https://github.com/Octaview-b2b/OCTAVIEW.git
+            cd ~/OCTAVIEW && git reset --hard origin/master && git pull origin master
+
+            # Ensure .env file exists (Optional: Copy from secrets)
+            echo "🛠️ Checking .env file..."
+            if [ ! -f .env ]; then
+              echo "⚠️ No .env file found! Make sure it exists."
+              exit 1
             fi
-            echo "✅ Docker $(docker -v) and Docker Compose $(docker-compose -v) installed!"
 
-            # Pull the latest Docker image from Docker Hub
-            echo "📦 Pulling latest Docker image..."
-            docker pull mammenmathewz/octaview:latest
-
-            # Stop and remove old containers
-            echo "🛑 Stopping and removing old containers..."
+            # Stop and remove old container
+            echo "🛑 Stopping old container..."
             docker stop octaview-server || true
             docker rm octaview-server || true
 
-            # Clean up unused Docker resources
-            echo "🧹 Cleaning up Docker..."
-            docker system prune -af || true
-
-            # Run the latest container
-            echo "🔄 Starting new container..."
-            docker run -d --name octaview-server -p 5000:5000 --env-file .env --restart always mammenmathewz/octaview:latest
+            # Build and run the new container (without Docker Hub)
+            echo "🔄 Building and starting new container..."
+            docker build -t octaview-server .
+            docker run -d --name octaview-server -p 5000:5000 --env-file .env --restart always octaview-server
 
             echo "🚀 Deployment successful!"
