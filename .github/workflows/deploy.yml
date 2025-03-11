@@ -65,15 +65,24 @@ jobs:
             npm run build
             
             echo "🛑 Stopping and removing old containers..."
-            docker compose down || true
+            if ! docker compose down; then
+              echo "⚠️ Failed to stop containers. Ignoring error..."
+            fi
             
             echo "🧹 Removing unused Docker resources..."
-            docker system prune -af --volumes || true
+            if ! docker system prune -af --volumes; then
+              echo "⚠️ Failed to prune Docker resources. Ignoring error..."
+            fi
             
             echo "🔄 Building and restarting containers..."
-            docker compose up --build -d
+            if ! docker compose up --build -d; then
+              echo "❌ Failed to build and start containers. Exiting..."
+              exit 1
+            fi
             
             echo "🌐 Restarting Nginx..."
-            sudo systemctl restart nginx || true
+            if ! sudo systemctl restart nginx; then
+              echo "⚠️ Failed to restart Nginx. Ignoring error..."
+            fi
             
             echo "✅ Deployment complete!"
