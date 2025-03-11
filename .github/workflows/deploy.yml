@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # Add timeout to prevent workflow from running too long
 
     steps:
       - name: 🚀 Checkout code
@@ -16,55 +17,53 @@ jobs:
       - name: 🔑 Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.EC2_HOST }}  # Make sure this is your Elastic IP
           username: ubuntu
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 20m
           script: |
             set -e  # Exit immediately if a command fails
-
+            
             echo "✅ Connected to EC2"
             echo "⚡ Checking the deployment directory..."
             if [ ! -d "/home/ubuntu/OCTAVIEW" ]; then
               echo "❌ Directory not found! Creating it..."
               mkdir -p /home/ubuntu/OCTAVIEW
             fi
-
+            
             cd /home/ubuntu/OCTAVIEW
             echo "📁 Current directory: $(pwd)"
-
-            echo "⚡ Setting up SSH for Git..."
-            eval "$(ssh-agent -s)"
-            ssh-add ~/.ssh/id_rsa
-
-            if [ ! -f ~/.ssh/config ]; then
-              echo "⚡ Creating SSH config for GitHub..."
-              echo -e "Host github.com\n  StrictHostKeyChecking no\n  IdentityFile ~/.ssh/id_rsa" > ~/.ssh/config
-              chmod 600 ~/.ssh/config
-            fi
-
+            
             echo "⚡ Pulling latest code from GitHub..."
-            git remote set-url origin git@github.com:MammenMathew/octaview.git  # Change to your repo
-            git fetch origin
-            git checkout master
-            git reset --hard origin/master
+            if [ ! -d ".git" ]; then
+              echo "🔄 Initializing git repository..."
+              git init
+              git remote add origin https://github.com/Octaview-b2b/OCTAVIEW.git  # Change to your repo
+            else
+              git remote set-url origin https://github.com/Octaview-b2b/OCTAVIEW.git  # Change to your repo
+            fi
+            
+            git fetch --all
+            git checkout -f master
             git pull origin master
-
+            
             echo "📦 Installing dependencies..."
-            npm install --frozen-lockfile
-
+            npm install --no-fund --no-audit
+            
             echo "🔨 Building the project..."
             npm run build
-
+            
             echo "🛑 Stopping and removing old containers..."
-            docker compose down
-
+            docker compose down || true
+            
             echo "🧹 Removing unused Docker resources..."
-            docker system prune -af
-
+            docker system prune -af --volumes || true
+            
             echo "🔄 Building and restarting containers..."
             docker compose up --build -d
-
+            
             echo "🌐 Restarting Nginx..."
-            sudo systemctl restart nginx
-
+            sudo systemctl restart nginx || true
+            
             echo "✅ Deployment complete!"
