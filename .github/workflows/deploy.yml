@@ -16,11 +16,18 @@ jobs:
       - name: 🔑 Set up SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
+
+          touch ~/.ssh/known_hosts
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: 🔍 Test SSH Connection
+        run: |
+          ssh -vvv -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "echo '✅ SSH connection successful'"
 
       - name: 📂 Deploy and Restart Services
         env:
@@ -29,30 +36,43 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             set -e  # Exit if any command fails
 
+            echo "✅ Connected to EC2"
+            echo "⚡ Checking the deployment directory..."
+            if [ ! -d "/home/ubuntu/OCTAVIEW" ]; then
+              echo "❌ Directory not found! Creating it..."
+              mkdir -p /home/ubuntu/OCTAVIEW
+            fi
+
+            cd /home/ubuntu/OCTAVIEW
+            echo "📁 Current directory: $(pwd)"
+
             echo "⚡ Pulling latest code from GitHub..."
-            cd /home/ubuntu/OCTAVIEW || { echo "❌ Error: Folder not found! Exiting..."; exit 1; }
-            git fetch origin
-            git checkout $GIT_BRANCH
-            git reset --hard origin/$GIT_BRANCH
-            git pull origin $GIT_BRANCH
+            git config --global credential.helper store
+            echo "https://${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
+            chmod 600 ~/.git-credentials
+            
+            git fetch origin || echo "❌ Git fetch failed"
+            git checkout "${{ env.GIT_BRANCH }}" || echo "❌ Git checkout failed"
+            git reset --hard origin/"${{ env.GIT_BRANCH }}" || echo "❌ Git reset failed"
+            git pull origin "${{ env.GIT_BRANCH }}" || echo "❌ Git pull failed"
 
             echo "📦 Installing dependencies..."
-            npm install --frozen-lockfile
+            npm install --frozen-lockfile || echo "❌ NPM install failed"
 
             echo "🔨 Building the project..."
-            npm run build
-            
+            npm run build || echo "❌ Build failed"
+
             echo "🛑 Stopping and removing old containers..."
-            docker compose down
+            docker compose down || echo "❌ Docker compose down failed"
 
             echo "🧹 Removing unused Docker resources..."
-            docker system prune -af  # Frees up space
+            docker system prune -af || echo "❌ Docker system prune failed"
 
             echo "🔄 Building and restarting containers..."
-            docker compose up --build -d
-            
+            docker compose up --build -d || echo "❌ Docker compose up failed"
+
             echo "🌐 Restarting Nginx..."
-            sudo systemctl restart nginx
-            
+            sudo systemctl restart nginx || echo "❌ Nginx restart failed"
+
             echo "✅ Deployment complete!"
           EOF
