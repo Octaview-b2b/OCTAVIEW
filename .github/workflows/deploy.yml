@@ -3,12 +3,12 @@ name: 🚀 Deploy to EC2 OCTAVIEW SERVER
 on:
   push:
     branches:
-      - master  # Change this to deploy a different branch
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Prevent workflow from running indefinitely
+    timeout-minutes: 30
     
     steps:
       - name: 🚀 Checkout code
@@ -17,92 +17,79 @@ jobs:
       - name: 🔑 Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}  # Ensure this is your Elastic IP
+          host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           port: 22
-          command_timeout: 20m
           script: |
             set -e  # Exit immediately if a command fails
             
             echo "✅ Connected to EC2"
-            echo "⚡ Checking the deployment directory..."
+            
+            # Ensure deployment directory exists
             if [ ! -d "/home/ubuntu/OCTAVIEW" ]; then
-              echo "❌ Directory not found! Creating it..."
               mkdir -p /home/ubuntu/OCTAVIEW
             fi
-            
             cd /home/ubuntu/OCTAVIEW
-            echo "📁 Current directory: $(pwd)"
-            
+
             echo "⚡ Pulling latest code from GitHub..."
             if [ ! -d ".git" ]; then
-              echo "🔄 Initializing git repository..."
               git init
-              git remote add origin https://github.com/Octaview-b2b/OCTAVIEW.git  # Change to your repo
+              git remote add origin https://github.com/Octaview-b2b/OCTAVIEW.git
             else
-              git remote set-url origin https://github.com/Octaview-b2b/OCTAVIEW.git  # Change to your repo
+              git remote set-url origin https://github.com/Octaview-b2b/OCTAVIEW.git
             fi
-            
             git fetch --all
-            git reset --hard origin/master
-            git pull origin master --force
+            git checkout -f master
+            git pull origin master
             
-            echo "📦 Installing dependencies..."
-            if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
-              echo "Node.js not found, installing..."
+            # Ensure Node.js and npm are installed
+            echo "📦 Checking Node.js and npm..."
+            if ! command -v npm &> /dev/null; then
               curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
               sudo apt-get install -y nodejs
-              echo "Node.js $(node -v) and npm $(npm -v) installed!"
-            else
-              echo "✅ Node.js $(node -v) and npm $(npm -v) are already installed!"
             fi
-            
+            echo "✅ Node.js $(node -v) and npm $(npm -v) installed!"
+
+            # Install project dependencies
+            echo "📦 Installing dependencies..."
             npm install --no-fund --no-audit
             
+            # Build project
             echo "🔨 Building the project..."
             npm run build
             
-            echo "🐳 Ensuring Docker is installed..."
+            # Ensure Docker is installed
+            echo "🐳 Checking Docker..."
             if ! command -v docker &> /dev/null; then
-              echo "⚠️ Docker not found! Installing..."
+              echo "🔧 Installing Docker..."
               curl -fsSL https://get.docker.com | sh
               sudo usermod -aG docker ubuntu
             fi
-            
+
+            # Ensure Docker Compose is installed
+            echo "🛠️ Checking Docker Compose..."
+            if ! docker compose version &> /dev/null; then
+              echo "🔧 Installing Docker Compose..."
+              sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.7/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            echo "✅ Docker $(docker -v) and Docker Compose $(docker compose version) installed!"
+
+            # Stop and remove old containers
             echo "🛑 Stopping and removing old containers..."
-            if docker compose down; then
-              echo "✅ Containers stopped."
-            else
-              echo "⚠️ Failed to stop containers. Ignoring error..."
-            fi
-            
-            echo "🧹 Cleaning up Docker resources..."
-            if docker system prune -af --volumes; then
-              echo "✅ Docker resources cleaned up."
-            else
-              echo "⚠️ Failed to clean up Docker resources. Ignoring error..."
-            fi
-            
+            docker compose down || echo "⚠️ No running containers found."
+
+            # Remove unused Docker resources
+            echo "🧹 Cleaning up Docker..."
+            docker system prune -af --volumes || echo "⚠️ Cleanup skipped."
+
+            # Build and restart containers
             echo "🔄 Building and restarting containers..."
-            if docker compose up --build -d; then
-              echo "✅ Containers restarted successfully."
-            else
-              echo "❌ Failed to start containers. Exiting..."
-              exit 1
-            fi
-            
-            echo "🌐 Ensuring Nginx is installed and restarting..."
-            if ! command -v nginx &> /dev/null; then
-              echo "⚠️ Nginx not found! Installing..."
-              sudo apt-get update
-              sudo apt-get install -y nginx
-            fi
-            
-            if sudo systemctl restart nginx; then
-              echo "✅ Nginx restarted successfully."
-            else
-              echo "⚠️ Failed to restart Nginx. Ignoring error..."
-            fi
-            
+            docker compose up --force-recreate --build -d || (echo "❌ Failed to start containers." && exit 1)
+
+            # Restart Nginx
+            echo "🌐 Restarting Nginx..."
+            sudo systemctl restart nginx || echo "⚠️ Failed to restart Nginx."
+
             echo "✅ Deployment complete!"
