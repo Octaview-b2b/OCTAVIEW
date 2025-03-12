@@ -46,8 +46,8 @@ export class SettingsUseCase {
                         quantity: 1,
                     },
                 ],
-                success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `http://localhost:5173/dash/settings`,
+                success_url: `https://octaview.tech/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `http://octaview.tech/dash/settings`,
                 metadata: { userId, tokens: tokens.toString() }, 
             });
     
