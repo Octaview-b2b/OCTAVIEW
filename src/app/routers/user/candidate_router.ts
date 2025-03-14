@@ -16,7 +16,7 @@ const candidateRouter = express.Router();
 candidateRouter.get('/:jobId/',authenticateUser,(req,res)=>candidate_Controllers.getCandidate(req,res))
 
 // external from/to npm
-candidateExtRouter.post('/:userId/:jobId',checkApiKey,uploadResume, (req, res) => {
+candidateExtRouter.post('/:referenceId/:jobId',checkApiKey,uploadResume, (req, res) => {
     candidate_Controllers.apply4Job(req, res);
 });
 
