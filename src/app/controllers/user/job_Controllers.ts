@@ -95,12 +95,12 @@ async deleteJob(req: Request, res: Response): Promise<void> {
 
 async getAllJobs(req: Request, res: Response): Promise<Response> {
   try {
-      const { userId } = req.params;
-      if (!userId) {
+      const { referenceId } = req.params;
+      if (!referenceId) {
           return res.status(400).json({ error: "UserId is required" });
       }
 
-      const jobs = await this.jobUseCase.getAllJobsByUserId(userId);
+      const jobs = await this.jobUseCase.getAllJobsByUserId(referenceId);
       return res.status(200).json({ jobs });
   } catch (error) {
       return res.status(500).json({ error: error instanceof Error ? error.message : "Internal server error" });
