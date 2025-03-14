@@ -16,7 +16,7 @@ JobRouter.get("/:userId",authenticateUser, asyncHandler(async (req, res) => {awa
 JobRouter.put("/:jobId/:userId",authenticateUser, asyncHandler((req, res) => job_Controllers.editJob(req, res))); 
 JobRouter.delete("/:jobId/:userId",authenticateUser, asyncHandler((req, res) => job_Controllers.deleteJob(req, res))); 
 
-JobRouter.get("/ext/:referenceId",checkApiKey,asyncHandler(async (req, res) => {
+JobRouter.get("/ext/:userId",checkApiKey,asyncHandler(async (req, res) => {
     await job_Controllers.getAllJobs(req, res);
 }));
 
