@@ -15,21 +15,21 @@ const s3 = new S3Client({
 });
 
 export const uploadResumeToS3 = async (file: Express.Multer.File): Promise<string> => {
-  const fileName = `${randomBytes(16).toString("hex")}-${file.originalname}`; // Generate a random filename using crypto
+  const fileName = `${randomBytes(16).toString("hex")}-${file.originalname}`;
   const filePath = `resumes/${fileName}`;
 
   const params = {
-    Bucket: AWS_BUCKET_NAME!, // S3 bucket name
-    Key: filePath, // S3 file path
-    Body: file.buffer, // File content from buffer
-    ContentType: file.mimetype, // MIME type for the file
+    Bucket: AWS_BUCKET_NAME!, 
+    Key: filePath, 
+    Body: file.buffer, 
+    ContentType: file.mimetype, 
   };
 
   try {
     await s3.send(new PutObjectCommand(params)); // No need to store response
 
     const fileUrl = `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${filePath}`;
-    return fileUrl; // Return the file URL
+    return fileUrl; 
   } catch (error) {
     console.error("Error uploading file to S3", error);
     throw new Error("Error uploading resume to S3");

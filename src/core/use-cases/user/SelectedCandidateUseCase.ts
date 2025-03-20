@@ -26,8 +26,8 @@ export class SelectedCandidateUseCase {
       const selectedCandidate = SelectedCandidateEntity.create(
           candidateId,
           jobId,
-          meetUrl || "", // Default empty if undefined
-          status || "", // Default empty if undefined
+          meetUrl || "", 
+          status || "", 
           report,
           "shortlisted"
       );
@@ -71,25 +71,17 @@ export class SelectedCandidateUseCase {
 }
 
 
-async updateInterviewDateTimeUseCase(
-  selectedCandidateId: string,
-  interviewDate: string,
-  interviewTime: string
-): Promise<void> {
+async updateInterviewDateTimeUseCase(selectedCandidateId: string, interviewDate: string,interviewTime: string): Promise<void> {
   try {
-      console.log('updateInterviewDateTimeUsecase:', selectedCandidateId, interviewDate, interviewTime);
-      
-      // Fetch candidate details for email
+     
       const emailData = await this.selectedCandidateRepository.getDataForEmail(selectedCandidateId);
 
       if (!emailData.email) {
           throw new Error("Candidate email not found.");
       }
 
-      // Update interview date and time in repository
       await this.selectedCandidateRepository.updateInterviewDateTimeRepo(selectedCandidateId, interviewDate, interviewTime);
 
-      // Prepare interview schedule email template
       const emailTemplate = emailTemplates.interviewScheduled(
           emailData.candidateName,
           emailData.jobTitle,

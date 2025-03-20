@@ -1,4 +1,3 @@
-// Inside your routes setup (e.g., SelectedCandidateRoutes.ts)
 import express from "express"; 
 import { SelectedCandidateRepository } from "../../../infrastructure/repositories/SelectedCandidateRepository";
 import { SelectedCandidateUseCase } from "../../../core/use-cases/user/SelectedCandidateUseCase";

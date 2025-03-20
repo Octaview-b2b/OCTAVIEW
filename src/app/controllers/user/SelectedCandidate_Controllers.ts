@@ -29,8 +29,6 @@ export class SelectedCandidateController {
       try {
         const { jobId } = req.params;
         const selectedCandidates = await this.selectedCandidateUseCase.getSelectedCandidates(jobId);
-        console.log('get selected candidateata',selectedCandidates);
-  
         res.status(200).json(selectedCandidates);
       } catch (error) {
         res.status(500).json({
@@ -70,9 +68,8 @@ export class SelectedCandidateController {
 
     getScheduledInterviewsByUserId = async (req: Request, res: Response): Promise<void> => {
       try {
-        const { userId } = req.params; // Extract userId from request parameters
+        const { userId } = req.params; 
         const scheduledInterviews = await this.selectedCandidateUseCase.getScheduledInterviewsByUserId(userId);
-        console.log('Scheduled Interviews:', scheduledInterviews);
   
         if (scheduledInterviews.length === 0) {
           res.status(404).json({ message: "No scheduled interviews found for this user." });

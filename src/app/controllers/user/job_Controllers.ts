@@ -36,7 +36,7 @@ export class JobControllers {
         try {
             const { userId } = req.params;
             const page = parseInt(req.query.page as string) || 1;
-            const searchQuery = req.query.search as string || ""; // Corrected line
+            const searchQuery = req.query.search as string || ""; 
     
             if (!userId) {
                 return res.status(400).json({ error: "UserId is required" });
@@ -84,7 +84,6 @@ async editJob(req: Request, res: Response): Promise<void> {
 async deleteJob(req: Request, res: Response): Promise<void> {
   try {
       const { jobId, userId } = req.params;
-      console.log(req.params);
       
       await this.jobUseCase.deleteJob(jobId, userId);
       res.status(200).json({ message: "Job deleted successfully" });

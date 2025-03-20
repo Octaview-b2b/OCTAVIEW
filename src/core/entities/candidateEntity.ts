@@ -1,6 +1,6 @@
 export class CandidateEntity {
   constructor(
-    public id: string, // Add `id`
+    public id: string,
     public fullName: string,
     public DOB: string,
     public linkedin: string,

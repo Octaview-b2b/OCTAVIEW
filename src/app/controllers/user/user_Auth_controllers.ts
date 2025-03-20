@@ -15,7 +15,6 @@ export const signup = async (req: Request, res: Response) => {
         const { token, user } = await authuser.signup(email, password, companyName);
         res.status(201).json({ token, user });
     } catch (error) {
-        console.error("Signup error:", error);
         res.status(400).json({ error: error instanceof Error ? error.message : 'Unknown error occurred' });
     }
 };

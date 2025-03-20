@@ -21,7 +21,6 @@ export class JobRepository implements IjobRepository {
           throw new Error("User not found");
         }
       
-        // Correctly construct the searchMatch filter
         const searchMatch = searchQuery
           ? {
               $or: [
@@ -42,26 +41,26 @@ export class JobRepository implements IjobRepository {
               as: "jobs",
             },
           },
-          { $unwind: "$jobs" }, // Unwind jobs array
-          { $match: searchMatch }, // Filter by search query
-          { $sort: { "jobs.createdAt": -1 } }, // Sort by job creation date
+          { $unwind: "$jobs" }, 
+          { $match: searchMatch }, 
+          { $sort: { "jobs.createdAt": -1 } }, 
           {
             $facet: {
               paginatedJobs: [
-                { $skip: (page - 1) * pageSize }, // Pagination: Skip
-                { $limit: pageSize }, // Pagination: Limit
+                { $skip: (page - 1) * pageSize },
+                { $limit: pageSize }, 
               ],
-              totalCount: [{ $count: "total" }], // Count total results
+              totalCount: [{ $count: "total" }],
             },
           },
         ]);
       
-        // Handle aggregation result
+  
         const result = aggregationResult[0];
         const jobs = result.paginatedJobs || [];
         const totalJobs = result.totalCount[0]?.total || 0;
       
-        // Map jobs to JobEntity instances
+        
         const jobEntities = jobs.map((job: any) =>
           new JobEntity(
             job.jobs._id,
@@ -102,16 +101,13 @@ export class JobRepository implements IjobRepository {
 
     async findJobsWithoutPagination(userId: string): Promise<JobEntity[]> {
         try {
-          // Fetch the user and ensure the user exists
           const user = await UserModel.findById(userId);
           if (!user) {
             throw new Error("User not found");
           }
-      
-          // Fetch all the jobs related to the user
+    
           const jobs = await JobModel.find({ _id: { $in: user.jobs } });
-      
-          // Convert job documents to JobEntity instances
+    
           const jobEntities = jobs.map((job: any) => new JobEntity(
             job._id, 
             job.job_title,

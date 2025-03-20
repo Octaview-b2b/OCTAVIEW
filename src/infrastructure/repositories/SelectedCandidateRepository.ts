@@ -8,8 +8,6 @@ import mongoose from "mongoose";
 export class SelectedCandidateRepository implements ISelectedCandidateRepository {
   async save(selectedCandidate: SelectedCandidateEntity): Promise<void> {
     try {
-      console.log("Saving candidate with status:", selectedCandidate.status); // Debugging log
-
       const newSelectedCandidate = new SelectedCandidateModel({
         candidate: selectedCandidate.candidate,
         job: selectedCandidate.job,
@@ -20,7 +18,6 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
       });
 
       await newSelectedCandidate.save();
-      console.log("Candidate saved successfully");
 
     } catch (error) {
       console.error("Error saving selected candidate:", error);
@@ -45,27 +42,25 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
 
   async getByJobId(jobId: string): Promise<any[]> {
     try {
-      console.log('jobId from repo', jobId);
-
-      // MongoDB Aggregation to filter by "onhold" status
+  
       const selectedCandidates = await SelectedCandidateModel.aggregate([
         {
           $match: {
-            job: new mongoose.Types.ObjectId(jobId), // Match by jobId
-            status: "shortlisted"  // Only "onhold" candidates
+            job: new mongoose.Types.ObjectId(jobId), 
+            status: "shortlisted"  
           }
         },
         {
           $lookup: {
-            from: "candidates", // Join with the "candidates" collection
+            from: "candidates", 
             localField: "candidate",
             foreignField: "_id",
             as: "candidate"
           }
         },
-        { $unwind: "$candidate" },  // Flatten the candidate data
+        { $unwind: "$candidate" },  
         {
-          $project: {  // Project the required fields
+          $project: {  
             selectedCandidateId: "$_id",
             candidate: {
               _id: "$candidate._id",
@@ -84,7 +79,7 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
             meetUrl: "$meetUrl",
             report: "$report",
             date: "$date",
-            time: "$time", // Including the time field as well
+            time: "$time", 
           }
         }
       ]);
@@ -140,7 +135,7 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
           path: "candidate",
           populate: {
             path: "jobId",
-            populate: { path: "user" }  // ✅ Fixed: Using "user" instead of "companyId"
+            populate: { path: "user" }  
           },
           options: { strictPopulate: false }
         })
@@ -164,40 +159,35 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
   
   async getScheduledInterviewsByUserId(userId: string): Promise<any[]> {
     try {
-      console.log('Fetching scheduled interviews for userId:', userId);
 
-      // Find jobs created by the user
       const userJobs = await UserModel.findById(userId).select("jobs").populate("jobs").exec();
 
       if (!userJobs || !userJobs.jobs.length) {
-        return []; // Return an empty array if no jobs are found for the user
+        return []; 
       }
 
       const scheduledInterviews = await SelectedCandidateModel.find({
-        job: { $in: userJobs.jobs }, // Match jobs created by the user
-        status: "scheduled",         // Filter by "scheduled" status
+        job: { $in: userJobs.jobs }, 
+        status: "scheduled",        
       })
-        .populate("candidate")       // Populate candidate details
-        .populate("job")             // Populate job details
+        .populate("candidate")       
+        .populate("job")            
         .exec();
 
-      // Map over the results and return formatted data
       return scheduledInterviews.map((candidate: any) => {
-        const candidateData = candidate.candidate as ICandidateModal; // Type assertion for candidate
-        const jobData = candidate.job;                               // Get the job details
+        const candidateData = candidate.candidate as ICandidateModal; 
+        const jobData = candidate.job;                               
 
-        // Ensure candidateData is populated
         if (!candidateData) {
           throw new Error('Candidate data is not populated properly');
         }
 
-        // Ensure jobData is populated
         if (!jobData) {
           throw new Error('Job data is not populated properly');
         }
 
         return {
-          selectedCandidateId: candidate._id.toString(), // SelectedCandidate ID
+          selectedCandidateId: candidate._id.toString(), 
           candidate: {
             _id: candidateData._id.toString(),
             fullName: candidateData.fullName,
@@ -214,12 +204,12 @@ export class SelectedCandidateRepository implements ISelectedCandidateRepository
           selectionStatus: candidate.status,
           report: candidate.report,
           date: candidate.date,
-          time: candidate.time, // Include time field
+          time: candidate.time, 
           job: {
-            jobId: jobData._id.toString(),         // Job ID
-            jobTitle: jobData.job_title,              // Job title
-            jobLocation: jobData.location,        // Job location     
-            jobLevel: jobData.job_level,              // Job level
+            jobId: jobData._id.toString(),         
+            jobTitle: jobData.job_title,             
+            jobLocation: jobData.location,         
+            jobLevel: jobData.job_level,              
           },
         };
       });

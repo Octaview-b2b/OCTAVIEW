@@ -24,7 +24,7 @@ export class Settings_Controller {
             const userId = req.params.userId;
             const data = await this.settingsUseCase.getSettingsData(userId);
             if (data) {
-                res.status(200).json(data); // Pass the data properly
+                res.status(200).json(data); 
             } else {
                 res.status(404).json({ error: "Settings not found" });
             }
@@ -56,8 +56,6 @@ export class Settings_Controller {
   confirmPayment = async (req: Request, res: Response): Promise<void> =>{
         try {
             const { paymentId, userId } = req.body;
-            console.log(" Received:", { paymentId, userId });
-    
             if (!paymentId || !userId) {
                 console.error(" Missing paymentId,userId");
                 res.status(400).json({ error: "Payment ID and User ID are required." });

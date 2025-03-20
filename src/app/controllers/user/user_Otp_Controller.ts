@@ -25,7 +25,6 @@ export const generateOtp=async(req:Request,res:Response)=>{
 export const verifyOtp = async (req: Request, res: Response) => {
     try {
         const { email, otp } = req.body;
-        console.log("hit", req.body);
         
         if (!email || !otp) throw new Error("Email and OTP are required");
         await otpUsecase.verifyOtp(email, otp);

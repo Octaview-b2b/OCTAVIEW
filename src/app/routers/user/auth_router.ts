@@ -1,4 +1,3 @@
-// src/app/routers/user/authRouter.ts
 import { Router } from 'express';
 import { signup, login } from '../../controllers/user/user_Auth_controllers';
 import { generateOtp,verifyOtp } from '../../controllers/user/user_Otp_Controller';

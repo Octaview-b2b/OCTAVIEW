@@ -8,7 +8,6 @@ export class MeetController {
     static executeCode= async(req: Request, res: Response)=> {
         try {
             const { languageId, sourceCode, stdin } = req.body;
-            console.log('req.body :', req.body);
 
             if (!languageId || !sourceCode) {
                 return res.status(400).json({ error: "Missing required fields" });
@@ -30,7 +29,6 @@ export class MeetController {
     
     try {
         const emailHtml = emailTemplates.interviewInvite(candidateName, jobTitle, interviewDate, interviewTime, meetingUrl,companyName);
-        console.log('emailHtml :', emailHtml);
         
         await emailService.sendEmail(candidateEmail, `Interview Invitation- ${companyName}`, emailHtml);
         

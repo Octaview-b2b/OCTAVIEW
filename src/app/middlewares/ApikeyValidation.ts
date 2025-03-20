@@ -5,10 +5,9 @@ const settingsRepository = new SettingsRepository();
 
 export const checkApiKey = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authorizationHeader = req.headers['authorization'];
-  const apiKey = authorizationHeader ? authorizationHeader.split(' ')[1] : null; // Extract the token from "Bearer <apiKey>"
+  const apiKey = authorizationHeader ? authorizationHeader.split(' ')[1] : null; 
   const userId = req.params.userId as string;
 
-  console.log('api & id', apiKey, userId);
 
   if (!apiKey) {
     res.status(400).json({ error: 'API key is missing' });

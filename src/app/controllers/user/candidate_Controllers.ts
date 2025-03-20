@@ -5,7 +5,6 @@ export class Candidate_Controller {
   constructor(private candidateUseCase: CandidateUseCase) {}
 
   async apply4Job(req: Request, res: Response): Promise<void> {
-    console.log("Received job application request");
 
     try {
       const { fullName, DOB, linkedin, country, email, contactNo, github } =
@@ -49,7 +48,6 @@ export class Candidate_Controller {
       console.log('jobId /candidte ',jobId);
       
       const candidate = await this.candidateUseCase.getApplications(jobId)
-      console.log('data applications:',candidate);
       
       res.status(200).json(candidate)
     } catch (error) {
